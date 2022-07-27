@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -26,6 +27,8 @@ public class RobotContainer {
 
   private final XboxController driver = new XboxController(0);
 
+  private final double deadzone = 0.1;
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -35,7 +38,7 @@ public class RobotContainer {
     // Left stick Y axis -> forward and backwards movement
     // Left stick X axis -> left and right movement
     // Right stick X axis -> rotation
-    drivetrain.setDefaultCommand(new SwerveDrive(drivetrain, driver::getLeftX, driver::getLeftY, driver::getRightX));
+    drivetrain.setDefaultCommand(new SwerveDrive(drivetrain, () -> -MathUtil.applyDeadband(driver.getLeftX(), deadzone), () -> MathUtil.applyDeadband(driver.getLeftY(), deadzone), () -> -MathUtil.applyDeadband(driver.getRightX(), deadzone)));
 
     // Configure the button bindings
     configureButtonBindings();
