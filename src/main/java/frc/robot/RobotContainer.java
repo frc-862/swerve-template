@@ -34,6 +34,7 @@ public class RobotContainer {
         // Right stick X axis -> rotation
         drivetrain.setDefaultCommand(new SwerveDrive(drivetrain, () -> -MathUtil.applyDeadband(driver.getLeftX(), deadzone), () -> MathUtil.applyDeadband(driver.getLeftY(), deadzone), () -> -MathUtil.applyDeadband(driver.getRightX(), deadzone)));
 
+        ConfigureAutonomousCommands();
         configureButtonBindings();
     }
 
