@@ -24,10 +24,12 @@ import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -66,6 +68,8 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveModule m_backRightModule;
 
     private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
+
+    private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, new Rotation2d());
 
     public Drivetrain() {
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -119,22 +123,23 @@ public class Drivetrain extends SubsystemBase {
         return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw(), 0, 360));
     }
 
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        odometry.resetPosition(pose, new Rotation2d());
+    }
+
+    public SwerveDriveKinematics getDriveKinematics() {
+        return m_kinematics;
+    }
+
     public void drive(ChassisSpeeds chassisSpeeds) {
         m_chassisSpeeds = chassisSpeeds;
     }
 
-    @Override
-    public void periodic() {
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
-
-        SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
-        SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
-
-        SmartDashboard.putNumber("yaw", MathUtil.inputModulus(navX.getYaw(), 0, 360));
-
+    public void setStates(SwerveModuleState[] states) {
         m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                 states[0].angle.getRadians());
         m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -143,5 +148,24 @@ public class Drivetrain extends SubsystemBase {
                 states[2].angle.getRadians());
         m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                 states[3].angle.getRadians());
+    }
+
+    @Override
+    public void periodic() {
+        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
+
+        odometry.update(getGyroscopeRotation(), states);
+
+        SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
+        SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
+        SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
+        SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
+
+        SmartDashboard.putNumber("yaw", MathUtil.inputModulus(navX.getYaw(), 0, 360));
+
+        SmartDashboard.putString("pose", odometry.getPoseMeters().toString()); //TODO look at me and see if im working right. :)
+
+        setStates(states);
     }
 }
