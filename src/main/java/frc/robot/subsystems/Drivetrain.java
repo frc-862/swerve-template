@@ -120,7 +120,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Rotation2d getGyroscopeRotation() {
-        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw(), 0, 360));
+        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw() + 90, 0, 360));
     }
 
     public Pose2d getPose() {

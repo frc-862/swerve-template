@@ -1,7 +1,12 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
+import java.io.IOException;
 
 import com.pathplanner.lib.PathPlanner;
 
@@ -9,6 +14,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -25,6 +31,7 @@ public class RobotContainer {
     private final double deadzone = 0.1;
 
     private SendableChooser<Command> chooser = new SendableChooser<>();
+    private ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
     public RobotContainer() {
         // Set up the default command for the drivetrain.
@@ -45,7 +52,8 @@ public class RobotContainer {
 
     private void ConfigureAutonomousCommands() {
         chooser.setDefaultOption("no path", new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
-        makeTrajectory("1 meter", 1, 1, false);
+        makeTrajectory("1 meter", 0.1, 0.1, false);
+        autonomousTab.add("chooser", chooser);
     }
 
     public Command getAutonomousCommand() {
@@ -55,9 +63,9 @@ public class RobotContainer {
     public void makeTrajectory(String path, double maxVel, double maxAcel, boolean reversed) {
         Trajectory trajectory = PathPlanner.loadPath(path, maxVel, maxAcel, reversed);
 
-        PIDController xController = new PIDController(0, 0, 0); //TODO tune me 
-        PIDController yController = new PIDController(0, 0, 0); //TODO tune me 
-        ProfiledPIDController thetaController = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(1, 1)); //TODO tune me 
+        PIDController xController = new PIDController(0.00057741, 0, 0); //TODO tune me using sysid and configuring it by locking the wheels.
+        PIDController yController = new PIDController(0.00057741, 0, 0); //TODO tune me using sysid 
+        ProfiledPIDController thetaController = new ProfiledPIDController(, 0, 0, new TrapezoidProfile.Constraints(1, 1)); //TODO tune me 
 
         chooser.addOption(path, new SwerveControllerCommand(trajectory, 
             drivetrain::getPose, 
