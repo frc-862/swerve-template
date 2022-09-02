@@ -1,29 +1,32 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.BACK_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.BACK_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.BACK_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.BACK_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.BACK_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.BACK_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.BACK_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DRIVETRAIN_TRACKWIDTH_METERS;
-import static frc.robot.Constants.DRIVETRAIN_WHEELBASE_METERS;
-import static frc.robot.Constants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.FRONT_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.FRONT_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.FRONT_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.FRONT_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.FRONT_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.FRONT_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.Constants.DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS;
+import static frc.robot.Constants.DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
+import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
+import static frc.robot.Constants.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+import static frc.robot.Constants.DrivetrainConstants.MAX_VOLTAGE;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -37,18 +40,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DrivetrainConstants.Gains;
 
 public class Drivetrain extends SubsystemBase {
-
-    public static final double MAX_VOLTAGE = 12.0;
-
-    public static final double MAX_VELOCITY_METERS_PER_SECOND = 1; // TODO lets take a look at this
-    // 6380.0 / 60.0 *
-    // SdsModuleConfigurations.MK3_STANDARD.getDriveReduction() *
-    // SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI;
-
-    public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
-            Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             // Front left
@@ -67,7 +61,9 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveModule m_backLeftModule;
     private final SwerveModule m_backRightModule;
 
-    private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
+    private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);   
+
+    private SwerveModuleState[] m_states;
 
     private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, new Rotation2d());
 
@@ -136,26 +132,47 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
-        m_chassisSpeeds = chassisSpeeds;
+        if (m_states != null && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0
+				&& chassisSpeeds.omegaRadiansPerSecond == 0) {
+			m_states[0].speedMetersPerSecond = 0;
+			m_states[1].speedMetersPerSecond = 0;
+			m_states[2].speedMetersPerSecond = 0;
+			m_states[3].speedMetersPerSecond = 0;
+		} else {
+			m_states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+		}
+		setStates(m_states);
     }
 
     public void setStates(SwerveModuleState[] states) {
-        m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                states[0].angle.getRadians());
-        m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                states[1].angle.getRadians());
-        m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                states[2].angle.getRadians());
-        m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                states[3].angle.getRadians());
+        if (states != null) {
+			SwerveModuleState frontLeftState = states[0];
+			SwerveModuleState frontRightState = states[1];
+			SwerveModuleState backLeftState = states[2];
+			SwerveModuleState backRightState = states[3];
+
+			SwerveDriveKinematics.desaturateWheelSpeeds(states,
+					MAX_VELOCITY_METERS_PER_SECOND);
+
+			m_frontLeftModule.set(velocityToDriveVolts(frontLeftState.speedMetersPerSecond),
+					frontLeftState.angle.getRadians());
+			m_frontRightModule.set(velocityToDriveVolts(frontRightState.speedMetersPerSecond),
+					frontRightState.angle.getRadians());
+			m_backLeftModule.set(velocityToDriveVolts(backLeftState.speedMetersPerSecond),
+					backLeftState.angle.getRadians());
+			m_backRightModule.set(velocityToDriveVolts(backRightState.speedMetersPerSecond),
+					backRightState.angle.getRadians());
+		}
     }
 
+    private double velocityToDriveVolts(double speedMetersPerSecond) {
+		double ff = m_feedForward.calculate(speedMetersPerSecond);
+		return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
+	}
+    
     @Override
     public void periodic() {
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
-
-        odometry.update(getGyroscopeRotation(), states);
+        odometry.update(getGyroscopeRotation(), m_states);
 
         SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
         SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
@@ -163,9 +180,6 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
 
         SmartDashboard.putNumber("yaw", MathUtil.inputModulus(navX.getYaw(), 0, 360));
-
-        SmartDashboard.putString("pose", odometry.getPoseMeters().toString()); //TODO look at me and see if im working right. :)
-
-        setStates(states);
+        SmartDashboard.putString("pose", odometry.getPoseMeters().toString());
     }
 }
