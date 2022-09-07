@@ -22,8 +22,8 @@ import static frc.robot.Constants.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SE
 import static frc.robot.Constants.DrivetrainConstants.MAX_VOLTAGE;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.SwerveModule;
+import frc.robot.lightningUtil.swervelib.SwerveModule;
+import frc.robot.lightningUtil.swervelib.Mk3SwerveModuleHelper;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
