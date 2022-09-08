@@ -75,7 +75,7 @@ public class RobotContainer {
                 xController,
                 yController,
                 thetaController,
-                drivetrain::setStates,
+                drivetrain::updateDriveStates,
                 drivetrain));
 
     }

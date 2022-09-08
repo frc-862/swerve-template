@@ -1,7 +1,6 @@
 package frc.robot;
 
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
-
+import frc.robot.lightningUtil.swervelib.SdsModuleConfigurations;
 import edu.wpi.first.math.util.Units;
 import frc.robot.lightningUtil.swervelib.CanPort;
 

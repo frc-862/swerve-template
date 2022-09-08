@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
@@ -53,7 +54,7 @@ public class Drivetrain extends SubsystemBase {
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // Back right
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
-            
+
     private final AHRS navX = new AHRS(SPI.Port.kMXP);
 
     private final SwerveModule m_frontLeftModule;
@@ -61,11 +62,12 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveModule m_backLeftModule;
     private final SwerveModule m_backRightModule;
 
-    private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);   
+    private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);
 
     private SwerveModuleState[] m_states;
 
-    private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(m_kinematics, new Rotation2d());
+    private Pose2d m_pose = new Pose2d();
+    private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getGyroscopeRotation(), m_pose);
 
     public Drivetrain() {
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -109,10 +111,20 @@ public class Drivetrain extends SubsystemBase {
                 BACK_RIGHT_MODULE_STEER_MOTOR,
                 BACK_RIGHT_MODULE_STEER_ENCODER,
                 BACK_RIGHT_MODULE_STEER_OFFSET);
+
+        CommandScheduler.getInstance().registerSubsystem(this);
+
     }
 
     public void zeroGyroscope() {
         navX.zeroYaw();
+    }
+
+    public void setInitialPose(Pose2d initalPosition, Rotation2d initalRotation) {
+        navX.setAngleAdjustment(initalRotation.getDegrees());
+        m_pose = new Pose2d(initalPosition.getTranslation(), initalRotation);
+        m_odometry = new SwerveDriveOdometry(getDriveKinematics(), getGyroscopeRotation(), m_pose);
+
     }
 
     public Rotation2d getGyroscopeRotation() {
@@ -120,11 +132,11 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        return m_odometry.getPoseMeters();
     }
 
     public void resetOdometry(Pose2d pose) {
-        odometry.resetPosition(pose, new Rotation2d());
+        m_odometry.resetPosition(pose, new Rotation2d());
     }
 
     public SwerveDriveKinematics getDriveKinematics() {
@@ -133,53 +145,68 @@ public class Drivetrain extends SubsystemBase {
 
     public void drive(ChassisSpeeds chassisSpeeds) {
         if (m_states != null && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0
-				&& chassisSpeeds.omegaRadiansPerSecond == 0) {
-			m_states[0].speedMetersPerSecond = 0;
-			m_states[1].speedMetersPerSecond = 0;
-			m_states[2].speedMetersPerSecond = 0;
-			m_states[3].speedMetersPerSecond = 0;
-		} else {
-			m_states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-		}
-		setStates(m_states);
+                && chassisSpeeds.omegaRadiansPerSecond == 0) {
+            m_states[0].speedMetersPerSecond = 0;
+            m_states[1].speedMetersPerSecond = 0;
+            m_states[2].speedMetersPerSecond = 0;
+            m_states[3].speedMetersPerSecond = 0;
+        } else {
+            m_states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+        }
+        updateDriveStates(m_states);
     }
 
-    public void setStates(SwerveModuleState[] states) {
+    public void setStates(SwerveModuleState[] newStates) {
+        m_states = newStates;
+        updateOdomtery();
+        updateDriveStates(m_states);
+
+    }
+
+    public void updateOdomtery() {
+        m_pose = m_odometry.update(getGyroscopeRotation(), getStates());
+        SmartDashboard.putNumber("poseX", m_pose.getX());
+        SmartDashboard.putNumber("poseY", m_pose.getY());
+    }
+
+    public SwerveModuleState[] getStates() {
+        return m_states;
+    }
+
+    public void updateDriveStates(SwerveModuleState[] states) {
         if (states != null) {
-			SwerveModuleState frontLeftState = states[0];
-			SwerveModuleState frontRightState = states[1];
-			SwerveModuleState backLeftState = states[2];
-			SwerveModuleState backRightState = states[3];
+            SwerveModuleState frontLeftState = states[0];
+            SwerveModuleState frontRightState = states[1];
+            SwerveModuleState backLeftState = states[2];
+            SwerveModuleState backRightState = states[3];
 
-			SwerveDriveKinematics.desaturateWheelSpeeds(states,
-					MAX_VELOCITY_METERS_PER_SECOND);
+            SwerveDriveKinematics.desaturateWheelSpeeds(states,
+                    MAX_VELOCITY_METERS_PER_SECOND);
 
-			m_frontLeftModule.set(velocityToDriveVolts(frontLeftState.speedMetersPerSecond),
-					frontLeftState.angle.getRadians());
-			m_frontRightModule.set(velocityToDriveVolts(frontRightState.speedMetersPerSecond),
-					frontRightState.angle.getRadians());
-			m_backLeftModule.set(velocityToDriveVolts(backLeftState.speedMetersPerSecond),
-					backLeftState.angle.getRadians());
-			m_backRightModule.set(velocityToDriveVolts(backRightState.speedMetersPerSecond),
-					backRightState.angle.getRadians());
-		}
+            m_frontLeftModule.set(velocityToDriveVolts(frontLeftState.speedMetersPerSecond),
+                    frontLeftState.angle.getRadians());
+            m_frontRightModule.set(velocityToDriveVolts(frontRightState.speedMetersPerSecond),
+                    frontRightState.angle.getRadians());
+            m_backLeftModule.set(velocityToDriveVolts(backLeftState.speedMetersPerSecond),
+                    backLeftState.angle.getRadians());
+            m_backRightModule.set(velocityToDriveVolts(backRightState.speedMetersPerSecond),
+                    backRightState.angle.getRadians());
+        }
     }
 
     private double velocityToDriveVolts(double speedMetersPerSecond) {
-		double ff = m_feedForward.calculate(speedMetersPerSecond);
-		return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
-	}
-    
+        double ff = m_feedForward.calculate(speedMetersPerSecond);
+        return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
+    }
+
     @Override
     public void periodic() {
-        odometry.update(getGyroscopeRotation(), m_states);
-
+        updateOdomtery();
         SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
         SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
         SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
         SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
 
-        SmartDashboard.putNumber("yaw", MathUtil.inputModulus(navX.getYaw(), 0, 360));
-        SmartDashboard.putString("pose", odometry.getPoseMeters().toString());
+        SmartDashboard.putNumber("yaw", getGyroscopeRotation().getDegrees());
     }
 }
