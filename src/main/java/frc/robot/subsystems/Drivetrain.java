@@ -23,6 +23,7 @@ import static frc.robot.Constants.DrivetrainConstants.MAX_VOLTAGE;
 
 import com.kauailabs.navx.frc.AHRS;
 import frc.robot.lightningUtil.swervelib.SwerveModule;
+import frc.robot.lightningUtil.logging.DataLogger;
 import frc.robot.lightningUtil.swervelib.Mk3SwerveModuleHelper;
 
 import edu.wpi.first.math.MathUtil;
@@ -57,6 +58,9 @@ public class Drivetrain extends SubsystemBase {
 
     private final AHRS navX = new AHRS(SPI.Port.kMXP);
 
+    private Pose2d m_pose = new Pose2d();
+    private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getGyroscopeRotation(), m_pose);
+
     private final SwerveModule m_frontLeftModule;
     private final SwerveModule m_frontRightModule;
     private final SwerveModule m_backLeftModule;
@@ -66,9 +70,6 @@ public class Drivetrain extends SubsystemBase {
 
     private SwerveModuleState[] m_states;
 
-    private Pose2d m_pose = new Pose2d();
-    private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getGyroscopeRotation(), m_pose);
-
     public Drivetrain() {
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -76,7 +77,7 @@ public class Drivetrain extends SubsystemBase {
                 tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(0, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk3SwerveModuleHelper.GearRatio.FAST,
                 FRONT_LEFT_MODULE_DRIVE_MOTOR,
                 FRONT_LEFT_MODULE_STEER_MOTOR,
                 FRONT_LEFT_MODULE_STEER_ENCODER,
@@ -86,7 +87,7 @@ public class Drivetrain extends SubsystemBase {
                 tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(2, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk3SwerveModuleHelper.GearRatio.FAST,
                 FRONT_RIGHT_MODULE_DRIVE_MOTOR,
                 FRONT_RIGHT_MODULE_STEER_MOTOR,
                 FRONT_RIGHT_MODULE_STEER_ENCODER,
@@ -96,7 +97,7 @@ public class Drivetrain extends SubsystemBase {
                 tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(4, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk3SwerveModuleHelper.GearRatio.FAST,
                 BACK_LEFT_MODULE_DRIVE_MOTOR,
                 BACK_LEFT_MODULE_STEER_MOTOR,
                 BACK_LEFT_MODULE_STEER_ENCODER,
@@ -106,12 +107,14 @@ public class Drivetrain extends SubsystemBase {
                 tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(6, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk3SwerveModuleHelper.GearRatio.FAST,
                 BACK_RIGHT_MODULE_DRIVE_MOTOR,
                 BACK_RIGHT_MODULE_STEER_MOTOR,
                 BACK_RIGHT_MODULE_STEER_ENCODER,
                 BACK_RIGHT_MODULE_STEER_OFFSET);
 
+        zeroGyroscope();
+        
         CommandScheduler.getInstance().registerSubsystem(this);
 
     }
@@ -123,7 +126,8 @@ public class Drivetrain extends SubsystemBase {
     public void setInitialPose(Pose2d initalPosition, Rotation2d initalRotation) {
         navX.setAngleAdjustment(initalRotation.getDegrees());
         m_pose = new Pose2d(initalPosition.getTranslation(), initalRotation);
-        m_odometry = new SwerveDriveOdometry(getDriveKinematics(), getGyroscopeRotation(), m_pose);
+        m_odometry = new SwerveDriveOdometry(getDriveKinematics(),
+                getGyroscopeRotation(), m_pose);
 
     }
 
@@ -132,7 +136,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return m_odometry.getPoseMeters();
+        return m_pose;
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -153,7 +157,7 @@ public class Drivetrain extends SubsystemBase {
         } else {
             m_states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
         }
-        updateDriveStates(m_states);
+        setStates(m_states);
     }
 
     public void setStates(SwerveModuleState[] newStates) {
@@ -164,9 +168,15 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void updateOdomtery() {
-        m_pose = m_odometry.update(getGyroscopeRotation(), getStates());
+        m_pose =  m_odometry.update(getGyroscopeRotation(), stateFromModule(m_frontLeftModule),
+                stateFromModule(m_frontRightModule),
+                stateFromModule(m_backLeftModule), stateFromModule(m_backRightModule));
         SmartDashboard.putNumber("poseX", m_pose.getX());
         SmartDashboard.putNumber("poseY", m_pose.getY());
+    }
+
+    private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
+        return new SwerveModuleState(swerveModule.getDriveVelocity(), new Rotation2d(swerveModule.getSteerAngle()));
     }
 
     public SwerveModuleState[] getStates() {
@@ -202,11 +212,15 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         updateOdomtery();
+
         SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
         SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
         SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
         SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
 
         SmartDashboard.putNumber("yaw", getGyroscopeRotation().getDegrees());
+
+        DataLogger.addDataElement("poseX", () -> getPose().getX());
+        DataLogger.addDataElement("poseY", () -> getPose().getY());
     }
 }
