@@ -67,7 +67,7 @@ public class RobotContainer {
         try {
             // Creates a trajectory using pathplanner generated wpilib json files
             makeTrajectory("meter");
-            makeTrajectory("umbrella");
+            makeTrajectory("circle");
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to Make Trajectory");
