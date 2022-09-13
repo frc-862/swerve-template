@@ -1,8 +1,8 @@
 package frc.robot;
 
-import frc.robot.lightningUtil.swervelib.CanPort;
 
 import edu.wpi.first.math.util.Units;
+import frc.lightningUtil.swervelib.CanPort;
 
 public final class Constants {
 
@@ -14,10 +14,10 @@ public final class Constants {
     public static final double MAX_VOLTAGE = 12d;
 
     public static final double DRIVETRAIN_TRACKWIDTH_METERS = Units.inchesToMeters(22.375);
-    
+
     public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(22.375);
 
-    public static final CanPort FRONT_LEFT_MODULE_DRIVE_MOTOR =  new CanPort(8, "Canivore");
+    public static final CanPort FRONT_LEFT_MODULE_DRIVE_MOTOR = new CanPort(8, "Canivore");
     public static final CanPort FRONT_LEFT_MODULE_STEER_MOTOR = new CanPort(7, "Canivore");
     public static final CanPort FRONT_LEFT_MODULE_STEER_ENCODER = new CanPort(16, "Canivore");
     public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(269.121);// -Math.toRadians(-95.09765625d);
