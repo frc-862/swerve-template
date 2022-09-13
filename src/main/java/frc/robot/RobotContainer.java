@@ -8,28 +8,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
+
 import frc.robot.Constants.DrivetrainConstants.Gains;
 import frc.robot.Constants.DrivetrainConstants.ThetaGains;
 import frc.robot.commands.SwerveDrive;
@@ -39,9 +29,9 @@ public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
 
     private final XboxController driver = new XboxController(0);
-
     private final double deadzone = 0.1;
 
+    // Creates our sendable chooser and Atuonomous dashboard tab
     private SendableChooser<Command> chooser = new SendableChooser<>();
     private ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
@@ -61,35 +51,48 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+        // Back button to reset feild centeric driving to current heading of the robot
         new Button(driver::getBackButton)
-                .whenPressed(drivetrain::zeroGyroscope);
-    }
-
-    private void ConfigureAutonomousCommands() {
-        chooser.setDefaultOption("no path",
-                new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
-        try {
-            makeTrajectory("meter", 0.1, 0.1, false);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        autonomousTab.add("chooser", chooser);
+                .whenPressed(drivetrain::zeroHeading);
     }
 
     public Command getAutonomousCommand() {
         return chooser.getSelected();
     }
 
-    public void makeTrajectory(String path, double maxVel, double maxAcel, boolean reversed) throws IOException {
-        // PathPlannerTrajectory trajectory = PathPlanner.loadPath(path, maxVel, maxAcel, reversed);
-        Path p = Filesystem.getDeployDirectory().toPath().resolve("pathplanner/generatedJSON/unbrella.wpilib.json");
-        Trajectory manual = TrajectoryUtil.fromPathweaverJson(p);
-        // TrajectoryGenerator.generateTrajectory(
-        // List.of(new Pose2d(0, 0, new Rotation2d(0)), new Pose2d(1, 0, new
-        // Rotation2d(0))),
-        // new TrajectoryConfig(1, 1));
+    private void ConfigureAutonomousCommands() {
+        // Create a dashboard chooser for selecting autonomus command
+        chooser.setDefaultOption("no path",
+                new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
+        try {
+            // Creates a trajectory using pathplanner generated wpilib json files
+            makeTrajectory("meter");
+            makeTrajectory("umbrella");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Failed to Make Trajectory");
+        }
 
+        autonomousTab.add("chooser", chooser);
+    }
+
+    /**
+     * This method is gooing to create a swerve trajectory using pathplanners
+     * generated wpilib json files. Max veloxity, max acceleration, and reversed
+     * should be set when creating the paths in pathplanner
+     * 
+     * @param path name of the path in the deploy/pathplanner/generatedJSON
+     *             folder (no ".wpilib.json")
+     * @throws IOException
+     */
+    public void makeTrajectory(String path) throws IOException {
+        // Makes a path to the intended wpilib json
+        Path filePath = Filesystem.getDeployDirectory().toPath()
+                .resolve("pathplanner/generatedJSON/" + path + ".wpilib.json");
+        // Creates the trajectory
+        Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(filePath);
+
+        // PID controllers
         PIDController xController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
         PIDController yController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
         ProfiledPIDController thetaController = new ProfiledPIDController(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD,
@@ -99,24 +102,17 @@ public class RobotContainer {
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        // chooser.addOption(path, new PPSwerveControllerCommand(trajectory,
-        //         drivetrain::getPose, drivetrain.getDriveKinematics(),
-        //         xController,
-        //         yController,
-        //         thetaController,
-        //         drivetrain::setStates,
-        //         drivetrain));
+        // Set the starting point of the drivetrain
+        drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialPose().getRotation());
 
-        chooser.addOption("Path weaver", new SwerveControllerCommand(manual,
+        // Adds generated swerve path to chooser
+        chooser.addOption(path, new SwerveControllerCommand(trajectory,
                 drivetrain::getPose, drivetrain.getDriveKinematics(),
                 xController,
                 yController,
                 thetaController,
                 drivetrain::setStates,
                 drivetrain));
-
-        // drivetrain.setInitialPose(new Pose2d(new Translation2d(1, 3), new
-        // Rotation2d()), new Rotation2d());
 
     }
 

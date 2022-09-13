@@ -56,23 +56,29 @@ public class Drivetrain extends SubsystemBase {
             // Back right
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
+    // Creating new navX gyro
     private final AHRS navX = new AHRS(SPI.Port.kMXP);
 
+    // Creating our pose and odometry
     private Pose2d m_pose = new Pose2d();
-    private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getGyroscopeRotation(), m_pose);
+    private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getHeading(), m_pose);
 
+    // Creating our feed forward
+    private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);
+
+    // Creating our list of module states
+    private SwerveModuleState[] m_states;
+
+    // Creating our modules
     private final SwerveModule m_frontLeftModule;
     private final SwerveModule m_frontRightModule;
     private final SwerveModule m_backLeftModule;
     private final SwerveModule m_backRightModule;
 
-    private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);
-
-    private SwerveModuleState[] m_states;
-
     public Drivetrain() {
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
+        // Making front left module
         m_frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -83,6 +89,7 @@ public class Drivetrain extends SubsystemBase {
                 FRONT_LEFT_MODULE_STEER_ENCODER,
                 FRONT_LEFT_MODULE_STEER_OFFSET);
 
+        // Making front right module
         m_frontRightModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -93,6 +100,7 @@ public class Drivetrain extends SubsystemBase {
                 FRONT_RIGHT_MODULE_STEER_ENCODER,
                 FRONT_RIGHT_MODULE_STEER_OFFSET);
 
+        // Making backleft module
         m_backLeftModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -103,6 +111,7 @@ public class Drivetrain extends SubsystemBase {
                 BACK_LEFT_MODULE_STEER_ENCODER,
                 BACK_LEFT_MODULE_STEER_OFFSET);
 
+        // Making back right module
         m_backRightModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -113,38 +122,25 @@ public class Drivetrain extends SubsystemBase {
                 BACK_RIGHT_MODULE_STEER_ENCODER,
                 BACK_RIGHT_MODULE_STEER_OFFSET);
 
-        zeroGyroscope();
-        
+        // Zero our gyro
+        zeroHeading();
         CommandScheduler.getInstance().registerSubsystem(this);
 
     }
 
-    public void zeroGyroscope() {
-        navX.zeroYaw();
-    }
+    @Override
+    public void periodic() {
+        updateOdomtery();
 
-    public void setInitialPose(Pose2d initalPosition, Rotation2d initalRotation) {
-        navX.setAngleAdjustment(initalRotation.getDegrees());
-        m_pose = new Pose2d(initalPosition.getTranslation(), initalRotation);
-        m_odometry = new SwerveDriveOdometry(getDriveKinematics(),
-                getGyroscopeRotation(), m_pose);
+        SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
+        SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
+        SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
+        SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
 
-    }
+        SmartDashboard.putNumber("yaw", getHeading().getDegrees());
 
-    public Rotation2d getGyroscopeRotation() {
-        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw() + 90, 0, 360));
-    }
-
-    public Pose2d getPose() {
-        return m_pose;
-    }
-
-    public void resetOdometry(Pose2d pose) {
-        m_odometry.resetPosition(pose, new Rotation2d());
-    }
-
-    public SwerveDriveKinematics getDriveKinematics() {
-        return m_kinematics;
+        DataLogger.addDataElement("poseX", () -> getPose().getX());
+        DataLogger.addDataElement("poseY", () -> getPose().getY());
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
@@ -158,29 +154,6 @@ public class Drivetrain extends SubsystemBase {
             m_states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
         }
         setStates(m_states);
-    }
-
-    public void setStates(SwerveModuleState[] newStates) {
-        m_states = newStates;
-        updateOdomtery();
-        updateDriveStates(m_states);
-
-    }
-
-    public void updateOdomtery() {
-        m_pose =  m_odometry.update(getGyroscopeRotation(), stateFromModule(m_frontLeftModule),
-                stateFromModule(m_frontRightModule),
-                stateFromModule(m_backLeftModule), stateFromModule(m_backRightModule));
-        SmartDashboard.putNumber("poseX", m_pose.getX());
-        SmartDashboard.putNumber("poseY", m_pose.getY());
-    }
-
-    private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
-        return new SwerveModuleState(swerveModule.getDriveVelocity(), new Rotation2d(swerveModule.getSteerAngle()));
-    }
-
-    public SwerveModuleState[] getStates() {
-        return m_states;
     }
 
     public void updateDriveStates(SwerveModuleState[] states) {
@@ -204,23 +177,60 @@ public class Drivetrain extends SubsystemBase {
         }
     }
 
+    public void updateOdomtery() {
+        m_pose = m_odometry.update(getHeading(), stateFromModule(m_frontLeftModule),
+                stateFromModule(m_frontRightModule),
+                stateFromModule(m_backLeftModule), stateFromModule(m_backRightModule));
+        SmartDashboard.putNumber("poseX", m_pose.getX());
+        SmartDashboard.putNumber("poseY", m_pose.getY());
+    }
+
+    public void setStates(SwerveModuleState[] newStates) {
+        m_states = newStates;
+        updateOdomtery();
+        updateDriveStates(m_states);
+
+    }
+
+    public void setInitialPose(Pose2d initalPosition, Rotation2d initalRotation) {
+        navX.setAngleAdjustment(initalRotation.getDegrees());
+        m_pose = new Pose2d(initalPosition.getTranslation(), initalRotation);
+        m_odometry = new SwerveDriveOdometry(getDriveKinematics(),
+                getHeading(), m_pose);
+
+    }
+
     private double velocityToDriveVolts(double speedMetersPerSecond) {
         double ff = m_feedForward.calculate(speedMetersPerSecond);
         return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
     }
 
-    @Override
-    public void periodic() {
-        updateOdomtery();
-
-        SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
-        SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
-
-        SmartDashboard.putNumber("yaw", getGyroscopeRotation().getDegrees());
-
-        DataLogger.addDataElement("poseX", () -> getPose().getX());
-        DataLogger.addDataElement("poseY", () -> getPose().getY());
+    public Rotation2d getHeading() {
+        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw() + 90, 0, 360)); // FIXME look at this
     }
+
+    private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
+        return new SwerveModuleState(swerveModule.getDriveVelocity(), new Rotation2d(swerveModule.getSteerAngle()));
+    }
+
+    public void zeroHeading() {
+        navX.zeroYaw();
+    }
+
+    public Pose2d getPose() {
+        return m_pose;
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        m_odometry.resetPosition(pose, new Rotation2d());
+    }
+
+    public SwerveDriveKinematics getDriveKinematics() {
+        return m_kinematics;
+    }
+
+    public SwerveModuleState[] getStates() {
+        return m_states;
+    }
+
 }
