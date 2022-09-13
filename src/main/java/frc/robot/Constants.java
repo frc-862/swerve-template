@@ -1,8 +1,10 @@
 package frc.robot;
 
-import frc.robot.lightningUtil.swervelib.SdsModuleConfigurations;
+
+import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+
 import edu.wpi.first.math.util.Units;
-import frc.robot.lightningUtil.swervelib.CanPort;
+import frc.lightningUtil.swervelib.CanPort;
 
 public final class Constants {
 
