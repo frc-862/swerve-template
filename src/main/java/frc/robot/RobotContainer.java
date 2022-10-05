@@ -9,10 +9,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import frc.robot.PPSwerveControllerCommand;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -68,6 +74,8 @@ public class RobotContainer {
             // Creates a trajectory using pathplanner generated wpilib json files
             makeTrajectory("meter");
             makeTrajectory("circle");
+            makeTrajectory("funny-path");
+            makeTrajectory("test-path");
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to Make Trajectory");
@@ -81,16 +89,16 @@ public class RobotContainer {
      * generated wpilib json files. Max veloxity, max acceleration, and reversed
      * should be set when creating the paths in pathplanner
      * 
-     * @param path name of the path in the deploy/pathplanner/generatedJSON
+     * @param name name of the path in the deploy/pathplanner/generatedJSON
      *             folder (no ".wpilib.json")
      * @throws IOException
      */
-    public void makeTrajectory(String path) throws IOException {
-        // Makes a path to the intended wpilib json
-        Path filePath = Filesystem.getDeployDirectory().toPath()
-                .resolve("pathplanner/generatedJSON/" + path + ".wpilib.json");
-        // Creates the trajectory
-        Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(filePath);
+    public void makeTrajectory(String name) throws IOException {
+        // Path filePath = Filesystem.getDeployDirectory().toPath()
+        //         .resolve("pathplanner/generatedJSON/" + name + ".wpilib.json");
+        // Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(filePath);
+
+        PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, 1, 1);
 
         // PID controllers
         PIDController xController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
@@ -100,19 +108,29 @@ public class RobotContainer {
                         Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         2 * Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        thetaController.enableContinuousInput(-180, 180);
 
         // Set the starting point of the drivetrain
-        drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialPose().getRotation());
+        drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation);
+
+        // chooser.addOption(name, new SwerveControllerCommand(trajectory,
+        //         drivetrain::getPose,
+        //         drivetrain.getDriveKinematics(),
+        //         xController,
+        //         yController,
+        //         thetaController,
+        //         () -> new Rotation2d(180),
+        //         drivetrain::setStates,
+        //         drivetrain));
 
         // Adds generated swerve path to chooser
-        chooser.addOption(path, new SwerveControllerCommand(trajectory,
-                drivetrain::getPose, drivetrain.getDriveKinematics(),
-                xController,
-                yController,
-                thetaController,
-                drivetrain::setStates,
-                drivetrain));
+        chooser.addOption(name, new PPSwerveControllerCommand(trajectory,
+        drivetrain::getPose, drivetrain.getDriveKinematics(),
+        xController,
+        yController,
+        thetaController,
+        drivetrain::setStates,
+        drivetrain));
 
     }
 

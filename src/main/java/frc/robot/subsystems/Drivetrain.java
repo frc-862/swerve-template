@@ -39,9 +39,11 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
 public class Drivetrain extends SubsystemBase {
@@ -65,6 +67,9 @@ public class Drivetrain extends SubsystemBase {
 
     // Creating our feed forward
     private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);
+
+    // Field2d for displaying on the dashboard
+    private final Field2d m_field2d = new Field2d();
 
     // Creating our list of module states
     private SwerveModuleState[] m_states;
@@ -124,6 +129,8 @@ public class Drivetrain extends SubsystemBase {
 
         // Zero our gyro
         zeroHeading();
+        SmartDashboard.putData("Field", m_field2d);
+        initLogging();
         CommandScheduler.getInstance().registerSubsystem(this);
 
     }
@@ -131,6 +138,7 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         updateOdomtery();
+        m_field2d.setRobotPose(m_pose);
 
         SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
         SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
@@ -178,11 +186,24 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void updateOdomtery() {
-        m_pose = m_odometry.update(getHeading(), stateFromModule(m_frontLeftModule),
-                stateFromModule(m_frontRightModule),
+        m_pose = m_odometry.update(getHeading(),
+                stateFromModule(m_frontLeftModule), stateFromModule(m_frontRightModule),
                 stateFromModule(m_backLeftModule), stateFromModule(m_backRightModule));
+
         SmartDashboard.putNumber("poseX", m_pose.getX());
         SmartDashboard.putNumber("poseY", m_pose.getY());
+        SmartDashboard.putNumber("pose heading", m_pose.getRotation().getDegrees());
+    }
+
+    public void initLogging() {
+        DataLogger.addDataElement("fl steer angle", () -> m_frontLeftModule.getSteerAngle());
+        DataLogger.addDataElement("fl drive velocity", () -> m_frontLeftModule.getDriveVelocity());
+        DataLogger.addDataElement("fr steer angle", () -> m_frontRightModule.getSteerAngle());
+        DataLogger.addDataElement("fr drive velocity", () -> m_frontRightModule.getDriveVelocity());
+        DataLogger.addDataElement("bl steer angle", () -> m_backLeftModule.getSteerAngle());
+        DataLogger.addDataElement("bl drive velocity", () -> m_backLeftModule.getDriveVelocity());
+        DataLogger.addDataElement("br steer angle", () -> m_backRightModule.getSteerAngle());
+        DataLogger.addDataElement("br drive velocity", () -> m_backRightModule.getDriveVelocity());
     }
 
     public void setStates(SwerveModuleState[] newStates) {
@@ -193,9 +214,9 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void setInitialPose(Pose2d initalPosition, Rotation2d initalRotation) {
-        navX.setAngleAdjustment(initalRotation.getDegrees());
+        navX.setAngleAdjustment(initalRotation.getDegrees() + Constants.DrivetrainConstants.STEER_OFFSET);
         m_pose = new Pose2d(initalPosition.getTranslation(), initalRotation);
-        m_odometry = new SwerveDriveOdometry(getDriveKinematics(),
+        m_odometry = new SwerveDriveOdometry(m_kinematics,
                 getHeading(), m_pose);
 
     }
@@ -206,7 +227,9 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw() + 90, 0, 360)); // FIXME look at this
+        // return Rotation2d.fromDegrees(-1 * MathUtil.inputModulus(navX.getYaw() ,
+        // -180, 180)); // FIXME look at this
+        return Rotation2d.fromDegrees(-1 * MathUtil.inputModulus(navX.getAngle(), -180, 180));
     }
 
     private SwerveModuleState stateFromModule(SwerveModule swerveModule) {

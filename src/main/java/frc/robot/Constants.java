@@ -1,10 +1,8 @@
 package frc.robot;
 
-
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
-
 import edu.wpi.first.math.util.Units;
 import frc.lightningUtil.swervelib.CanPort;
+import frc.lightningUtil.swervelib.SdsModuleConfigurations;
 
 public final class Constants {
 
@@ -13,6 +11,9 @@ public final class Constants {
         // Our drivetrain and track width
         public static final double DRIVETRAIN_TRACKWIDTH_METERS = Units.inchesToMeters(22.375);
         public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(22.375);
+
+        // NavX angle offset
+        public static final int STEER_OFFSET = 90;
 
         // Our max voltage and velocity
         public static final double MAX_VOLTAGE = 12.0;
