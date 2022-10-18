@@ -147,8 +147,6 @@ public class Drivetrain extends SubsystemBase {
 
         SmartDashboard.putNumber("yaw", getHeading().getDegrees());
 
-        DataLogger.addDataElement("poseX", () -> getPose().getX());
-        DataLogger.addDataElement("poseY", () -> getPose().getY());
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
@@ -196,6 +194,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void initLogging() {
+        System.out.println("********************** initlogging drivetrain");
         DataLogger.addDataElement("fl steer angle", () -> m_frontLeftModule.getSteerAngle());
         DataLogger.addDataElement("fl drive velocity", () -> m_frontLeftModule.getDriveVelocity());
         DataLogger.addDataElement("fr steer angle", () -> m_frontRightModule.getSteerAngle());
@@ -204,6 +203,8 @@ public class Drivetrain extends SubsystemBase {
         DataLogger.addDataElement("bl drive velocity", () -> m_backLeftModule.getDriveVelocity());
         DataLogger.addDataElement("br steer angle", () -> m_backRightModule.getSteerAngle());
         DataLogger.addDataElement("br drive velocity", () -> m_backRightModule.getDriveVelocity());
+        DataLogger.addDataElement("poseX", () -> getPose().getX());
+        DataLogger.addDataElement("poseY", () -> getPose().getY());
     }
 
     public void setStates(SwerveModuleState[] newStates) {
