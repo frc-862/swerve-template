@@ -109,6 +109,7 @@ public class Drivetrain extends SubsystemBase {
                 BACK_RIGHT_MODULE_STEER_MOTOR,
                 BACK_RIGHT_MODULE_STEER_ENCODER,
                 BACK_RIGHT_MODULE_STEER_OFFSET);
+
     }
 
     public void zeroGyroscope() {
@@ -116,7 +117,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Rotation2d getGyroscopeRotation() {
-        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw(), 0, 360));
+        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(navX.getYaw() + 90, 0, 360));
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
