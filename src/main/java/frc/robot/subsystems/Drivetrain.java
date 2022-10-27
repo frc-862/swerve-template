@@ -19,6 +19,7 @@ import static frc.robot.Constants.FRONT_RIGHT_MODULE_STEER_ENCODER;
 import static frc.robot.Constants.FRONT_RIGHT_MODULE_STEER_MOTOR;
 import static frc.robot.Constants.FRONT_RIGHT_MODULE_STEER_OFFSET;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 import frc.lightningUtil.swervelib.SwerveModule;
 import frc.lightningUtil.swervelib.Mk3SwerveModuleHelper;
@@ -145,4 +146,48 @@ public class Drivetrain extends SubsystemBase {
         m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                 states[3].angle.getRadians());
     }
+
+public static double getMaxVoltage() {
+        return MAX_VOLTAGE;
+}
+
+public static double getMaxVelocityMetersPerSecond() {
+        return MAX_VELOCITY_METERS_PER_SECOND;
+}
+
+public static double getMaxAngularVelocityRadiansPerSecond() {
+        return MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+}
+
+public SwerveDriveKinematics getM_kinematics() {
+        return m_kinematics;
+}
+
+public AHRS getNavX() {
+        return navX;
+}
+
+public SwerveModule getM_frontLeftModule() {
+        return m_frontLeftModule;
+}
+
+public SwerveModule getM_frontRightModule() {
+        return m_frontRightModule;
+}
+
+public SwerveModule getM_backLeftModule() {
+        return m_backLeftModule;
+}
+
+public SwerveModule getM_backRightModule() {
+        return m_backRightModule;
+}
+
+public ChassisSpeeds getM_chassisSpeeds() {
+        return m_chassisSpeeds;
+}
+
+public void setM_chassisSpeeds(ChassisSpeeds m_chassisSpeeds) {
+        this.m_chassisSpeeds = m_chassisSpeeds;
+}
 }
