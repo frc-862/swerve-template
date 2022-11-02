@@ -134,6 +134,8 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
         SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
         SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
+        
+        SmartDashboard.putNumber("back left can coder", m_frontLeftModule.getSteerAngle());
 
         SmartDashboard.putNumber("yaw", MathUtil.inputModulus(navX.getYaw(), 0, 360));
 

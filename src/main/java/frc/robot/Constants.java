@@ -1,6 +1,5 @@
 package frc.robot;
 
-
 import edu.wpi.first.math.util.Units;
 import frc.lightningUtil.swervelib.CanPort;
 
@@ -30,11 +29,11 @@ public final class Constants {
     public static final CanPort BACK_LEFT_MODULE_DRIVE_MOTOR = new CanPort(10, "Canivore");
     public static final CanPort BACK_LEFT_MODULE_STEER_MOTOR = new CanPort(9, "Canivore");
     public static final CanPort BACK_LEFT_MODULE_STEER_ENCODER = new CanPort(15, "Canivore");
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(149.0625);// -Math.toRadians(30.673828125d);
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(68.178); // -Math.toRadians(30.673828125d);
 
     public static final CanPort BACK_RIGHT_MODULE_DRIVE_MOTOR = new CanPort(13, "Canivore");
     public static final CanPort BACK_RIGHT_MODULE_STEER_MOTOR = new CanPort(14, "Canivore");
     public static final CanPort BACK_RIGHT_MODULE_STEER_ENCODER = new CanPort(18, "Canivore");
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(59.765);// -Math.toRadians(119.00390625d);
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(59.765);
 
 }
