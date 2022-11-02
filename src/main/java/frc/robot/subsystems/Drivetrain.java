@@ -203,6 +203,7 @@ public class Drivetrain extends SubsystemBase {
         DataLogger.addDataElement("bl drive velocity", () -> m_backLeftModule.getDriveVelocity());
         DataLogger.addDataElement("br steer angle", () -> m_backRightModule.getSteerAngle());
         DataLogger.addDataElement("br drive velocity", () -> m_backRightModule.getDriveVelocity());
+        
         DataLogger.addDataElement("poseX", () -> getPose().getX());
         DataLogger.addDataElement("poseY", () -> getPose().getY());
     }

@@ -36,8 +36,9 @@ public final class Constants {
         public static final CanPort BACK_LEFT_MODULE_DRIVE_MOTOR = new CanPort(10, "Canivore");
         public static final CanPort BACK_LEFT_MODULE_STEER_MOTOR = new CanPort(9, "Canivore");
         public static final CanPort BACK_LEFT_MODULE_STEER_ENCODER = new CanPort(15, "Canivore");
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(68.178); // -Math.toRadians(30.673828125d);
-    
+        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(68.178);
+
+        // Back right module
         public static final CanPort BACK_RIGHT_MODULE_DRIVE_MOTOR = new CanPort(13, "Canivore");
         public static final CanPort BACK_RIGHT_MODULE_STEER_MOTOR = new CanPort(14, "Canivore");
         public static final CanPort BACK_RIGHT_MODULE_STEER_ENCODER = new CanPort(18, "Canivore");

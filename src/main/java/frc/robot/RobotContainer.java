@@ -11,7 +11,7 @@ import java.nio.file.Path;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import frc.robot.PPSwerveControllerCommand;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -95,7 +95,7 @@ public class RobotContainer {
      */
     public void makeTrajectory(String name) throws IOException {
         // Path filePath = Filesystem.getDeployDirectory().toPath()
-        //         .resolve("pathplanner/generatedJSON/" + name + ".wpilib.json");
+        // .resolve("pathplanner/generatedJSON/" + name + ".wpilib.json");
         // Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(filePath);
 
         PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, 1, 1);
@@ -114,23 +114,23 @@ public class RobotContainer {
         drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation);
 
         // chooser.addOption(name, new SwerveControllerCommand(trajectory,
-        //         drivetrain::getPose,
-        //         drivetrain.getDriveKinematics(),
-        //         xController,
-        //         yController,
-        //         thetaController,
-        //         () -> new Rotation2d(180),
-        //         drivetrain::setStates,
-        //         drivetrain));
+        // drivetrain::getPose,
+        // drivetrain.getDriveKinematics(),
+        // xController,
+        // yController,
+        // thetaController,
+        // () -> new Rotation2d(180),
+        // drivetrain::setStates,
+        // drivetrain));
 
         // Adds generated swerve path to chooser
         chooser.addOption(name, new PPSwerveControllerCommand(trajectory,
-        drivetrain::getPose, drivetrain.getDriveKinematics(),
-        xController,
-        yController,
-        thetaController,
-        drivetrain::setStates,
-        drivetrain));
+                drivetrain::getPose, drivetrain.getDriveKinematics(),
+                xController,
+                yController,
+                thetaController,
+                drivetrain::setStates,
+                drivetrain));
 
     }
 
