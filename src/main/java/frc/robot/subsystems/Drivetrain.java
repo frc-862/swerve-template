@@ -130,10 +130,10 @@ public class Drivetrain extends SubsystemBase {
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
-        SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
-        SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
+        SmartDashboard.putNumber("fl", Math.toDegrees(m_frontLeftModule.getSteerAngle()));
+        SmartDashboard.putNumber("bl", Math.toDegrees(m_backLeftModule.getSteerAngle()));
+        SmartDashboard.putNumber("fr", Math.toDegrees(m_frontRightModule.getSteerAngle()));
+        SmartDashboard.putNumber("br", Math.toDegrees(m_backRightModule.getSteerAngle()));
         
         SmartDashboard.putNumber("back left can coder", m_frontLeftModule.getSteerAngle());
 
