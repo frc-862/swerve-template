@@ -44,6 +44,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -58,7 +59,7 @@ public class Drivetrain extends SubsystemBase {
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
     // Creating new navX gyro
-    private final PigeonIMU pigeon = new PigeonIMU(1);
+    private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(1, "Canivore");
 
     // Creating our pose and odometry
     private Pose2d m_pose = new Pose2d();
