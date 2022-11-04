@@ -21,11 +21,6 @@ import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_O
 import static frc.robot.Constants.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
 import static frc.robot.Constants.DrivetrainConstants.MAX_VOLTAGE;
 
-import com.kauailabs.navx.frc.AHRS;
-import frc.lightningUtil.swervelib.SwerveModule;
-import frc.lightningUtil.logging.DataLogger;
-import frc.lightningUtil.swervelib.Mk3SwerveModuleHelper;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,7 +30,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -43,8 +37,13 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lightningUtil.logging.DataLogger;
+import frc.lightningUtil.swervelib.Mk3SwerveModuleHelper;
+import frc.lightningUtil.swervelib.SwerveModule;
 import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
+
+import com.ctre.phoenix.sensors.PigeonIMU;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -59,7 +58,7 @@ public class Drivetrain extends SubsystemBase {
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
     // Creating new navX gyro
-    private final AHRS navX = new AHRS(SPI.Port.kMXP);
+    private final PigeonIMU pigeon = new PigeonIMU(1);
 
     // Creating our pose and odometry
     private Pose2d m_pose = new Pose2d();
@@ -136,7 +135,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
+    public void periodic() {    
         updateOdomtery();
         m_field2d.setRobotPose(m_pose);
 
@@ -216,7 +215,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void setInitialPose(Pose2d initalPosition, Rotation2d initalRotation) {
-        navX.setAngleAdjustment(initalRotation.getDegrees() + Constants.DrivetrainConstants.STEER_OFFSET);
+        pigeon.setYaw(initalRotation.getDegrees());
         m_pose = new Pose2d(initalPosition.getTranslation(), initalRotation);
         m_odometry = new SwerveDriveOdometry(m_kinematics,
                 getHeading(), m_pose);
@@ -229,9 +228,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Rotation2d getHeading() {
-        // return Rotation2d.fromDegrees(-1 * MathUtil.inputModulus(navX.getYaw() ,
-        // -180, 180)); // FIXME look at this
-        return Rotation2d.fromDegrees(-1 * MathUtil.inputModulus(navX.getAngle(), -180, 180));
+        return Rotation2d.fromDegrees(-1 * MathUtil.inputModulus(pigeon.getYaw(), -180, 180));
     }
 
     private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
@@ -239,7 +236,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void zeroHeading() {
-        navX.zeroYaw();
+        pigeon.setYaw(0);
     }
 
     public Pose2d getPose() {
