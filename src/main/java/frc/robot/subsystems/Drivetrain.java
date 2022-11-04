@@ -140,10 +140,12 @@ public class Drivetrain extends SubsystemBase {
         updateOdomtery();
         m_field2d.setRobotPose(m_pose);
 
-        SmartDashboard.putNumber("fl", m_frontLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("bl", m_backLeftModule.getSteerAngle());
-        SmartDashboard.putNumber("fr", m_frontRightModule.getSteerAngle());
-        SmartDashboard.putNumber("br", m_backRightModule.getSteerAngle());
+        SmartDashboard.putNumber("fl", Math.toDegrees(m_frontLeftModule.getSteerAngle()));
+        SmartDashboard.putNumber("bl", Math.toDegrees(m_backLeftModule.getSteerAngle()));
+        SmartDashboard.putNumber("fr", Math.toDegrees(m_frontRightModule.getSteerAngle()));
+        SmartDashboard.putNumber("br", Math.toDegrees(m_backRightModule.getSteerAngle()));
+        
+        SmartDashboard.putNumber("back left can coder", m_frontLeftModule.getSteerAngle());
 
         SmartDashboard.putNumber("yaw", getHeading().getDegrees());
 
@@ -256,4 +258,47 @@ public class Drivetrain extends SubsystemBase {
         return m_states;
     }
 
+public static double getMaxVoltage() {
+        return MAX_VOLTAGE;
+}
+
+public static double getMaxVelocityMetersPerSecond() {
+        return MAX_VELOCITY_METERS_PER_SECOND;
+}
+
+public static double getMaxAngularVelocityRadiansPerSecond() {
+        return MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+}
+
+public SwerveDriveKinematics getM_kinematics() {
+        return m_kinematics;
+}
+
+public AHRS getNavX() {
+        return navX;
+}
+
+public SwerveModule getM_frontLeftModule() {
+        return m_frontLeftModule;
+}
+
+public SwerveModule getM_frontRightModule() {
+        return m_frontRightModule;
+}
+
+public SwerveModule getM_backLeftModule() {
+        return m_backLeftModule;
+}
+
+public SwerveModule getM_backRightModule() {
+        return m_backRightModule;
+}
+
+public ChassisSpeeds getM_chassisSpeeds() {
+        return m_chassisSpeeds;
+}
+
+public void setM_chassisSpeeds(ChassisSpeeds m_chassisSpeeds) {
+        this.m_chassisSpeeds = m_chassisSpeeds;
+}
 }
