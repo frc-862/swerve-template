@@ -40,10 +40,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lightningUtil.logging.DataLogger;
 import frc.lightningUtil.swervelib.Mk3SwerveModuleHelper;
 import frc.lightningUtil.swervelib.SwerveModule;
-import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 public class Drivetrain extends SubsystemBase {
@@ -63,7 +61,7 @@ public class Drivetrain extends SubsystemBase {
 
     // Creating our pose and odometry
     private Pose2d m_pose = new Pose2d();
-    private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getHeading(), m_pose);
+    private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, getYaw2d(), m_pose);
 
     // Creating our feed forward
     private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);
@@ -73,6 +71,7 @@ public class Drivetrain extends SubsystemBase {
 
     // Creating our list of module states
     private SwerveModuleState[] m_states;
+    private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
 
     // Creating our modules
     private final SwerveModule m_frontLeftModule;
@@ -128,7 +127,7 @@ public class Drivetrain extends SubsystemBase {
                 BACK_RIGHT_MODULE_STEER_OFFSET);
 
         // Zero our gyro
-        zeroHeading();
+        setInitialPose(new Pose2d(), getYaw2d());
         SmartDashboard.putData("Field", m_field2d);
         initLogging();
         CommandScheduler.getInstance().registerSubsystem(this);
@@ -136,7 +135,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {    
+    public void periodic() {
         updateOdomtery();
         m_field2d.setRobotPose(m_pose);
 
@@ -144,14 +143,14 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("bl", Math.toDegrees(m_backLeftModule.getSteerAngle()));
         SmartDashboard.putNumber("fr", Math.toDegrees(m_frontRightModule.getSteerAngle()));
         SmartDashboard.putNumber("br", Math.toDegrees(m_backRightModule.getSteerAngle()));
-        
-        SmartDashboard.putNumber("back left can coder", m_frontLeftModule.getSteerAngle());
 
-        SmartDashboard.putNumber("yaw", getHeading().getDegrees());
+        SmartDashboard.putNumber("pigeon yaw", getYaw2d().getDegrees());
+        SmartDashboard.putNumber("pose yaw", getPose().getRotation().getDegrees());
 
     }
 
     public void drive(ChassisSpeeds chassisSpeeds) {
+        m_chassisSpeeds = chassisSpeeds;
         if (m_states != null && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0
                 && chassisSpeeds.omegaRadiansPerSecond == 0) {
             m_states[0].speedMetersPerSecond = 0;
@@ -186,13 +185,9 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void updateOdomtery() {
-        m_pose = m_odometry.update(getHeading(),
+        m_pose = m_odometry.update(getYaw2d(),
                 stateFromModule(m_frontLeftModule), stateFromModule(m_frontRightModule),
                 stateFromModule(m_backLeftModule), stateFromModule(m_backRightModule));
-
-        SmartDashboard.putNumber("poseX", m_pose.getX());
-        SmartDashboard.putNumber("poseY", m_pose.getY());
-        SmartDashboard.putNumber("pose heading", m_pose.getRotation().getDegrees());
     }
 
     public void initLogging() {
@@ -205,7 +200,9 @@ public class Drivetrain extends SubsystemBase {
         DataLogger.addDataElement("bl drive velocity", () -> m_backLeftModule.getDriveVelocity());
         DataLogger.addDataElement("br steer angle", () -> m_backRightModule.getSteerAngle());
         DataLogger.addDataElement("br drive velocity", () -> m_backRightModule.getDriveVelocity());
-        
+
+        DataLogger.addDataElement("Heading", () -> getYaw2d().getDegrees());
+
         DataLogger.addDataElement("poseX", () -> getPose().getX());
         DataLogger.addDataElement("poseY", () -> getPose().getY());
     }
@@ -221,7 +218,7 @@ public class Drivetrain extends SubsystemBase {
         pigeon.setYaw(initalRotation.getDegrees());
         m_pose = new Pose2d(initalPosition.getTranslation(), initalRotation);
         m_odometry = new SwerveDriveOdometry(m_kinematics,
-                getHeading(), m_pose);
+                getYaw2d(), m_pose);
 
     }
 
@@ -230,15 +227,15 @@ public class Drivetrain extends SubsystemBase {
         return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
     }
 
-    public Rotation2d getHeading() {
-        return Rotation2d.fromDegrees(-1 * MathUtil.inputModulus(pigeon.getYaw(), -180, 180));
+    public Rotation2d getYaw2d() {
+        return Rotation2d.fromDegrees(-1 * MathUtil.inputModulus(pigeon.getYaw() + 90, -180, 180));
     }
 
     private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
         return new SwerveModuleState(swerveModule.getDriveVelocity(), new Rotation2d(swerveModule.getSteerAngle()));
     }
 
-    public void zeroHeading() {
+    public void zeroYaw() {
         pigeon.setYaw(0);
     }
 
@@ -258,47 +255,27 @@ public class Drivetrain extends SubsystemBase {
         return m_states;
     }
 
-public static double getMaxVoltage() {
-        return MAX_VOLTAGE;
-}
-
-public static double getMaxVelocityMetersPerSecond() {
-        return MAX_VELOCITY_METERS_PER_SECOND;
-}
-
-public static double getMaxAngularVelocityRadiansPerSecond() {
-        return MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-}
-
-public SwerveDriveKinematics getM_kinematics() {
-        return m_kinematics;
-}
-
-public AHRS getNavX() {
-        return navX;
-}
-
-public SwerveModule getM_frontLeftModule() {
+    public SwerveModule getM_frontLeftModule() {
         return m_frontLeftModule;
-}
+    }
 
-public SwerveModule getM_frontRightModule() {
+    public SwerveModule getM_frontRightModule() {
         return m_frontRightModule;
-}
+    }
 
-public SwerveModule getM_backLeftModule() {
+    public SwerveModule getM_backLeftModule() {
         return m_backLeftModule;
-}
+    }
 
-public SwerveModule getM_backRightModule() {
+    public SwerveModule getM_backRightModule() {
         return m_backRightModule;
-}
+    }
 
-public ChassisSpeeds getM_chassisSpeeds() {
+    public ChassisSpeeds getM_chassisSpeeds() {
         return m_chassisSpeeds;
-}
+    }
 
-public void setM_chassisSpeeds(ChassisSpeeds m_chassisSpeeds) {
+    public void setM_chassisSpeeds(ChassisSpeeds m_chassisSpeeds) {
         this.m_chassisSpeeds = m_chassisSpeeds;
-}
+    }
 }

@@ -32,7 +32,7 @@ public class SwerveDrive extends CommandBase {
                         m_translationXSupplier.getAsDouble(),
                         m_translationYSupplier.getAsDouble(),
                         m_rotationSupplier.getAsDouble(),
-                        m_drivetrainSubsystem.getHeading()));
+                        m_drivetrainSubsystem.getYaw2d()));
     }
 
     @Override
