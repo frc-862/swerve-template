@@ -228,7 +228,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Rotation2d getYaw2d() {
-        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(pigeon.getYaw(), 0, 360));
+        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(pigeon.getYaw() + 90, 0, 360));
     }
 
     private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
