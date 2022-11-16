@@ -30,6 +30,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -43,6 +44,7 @@ import frc.lightningUtil.swervelib.SwerveModule;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.kauailabs.navx.frc.AHRS;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -58,6 +60,7 @@ public class Drivetrain extends SubsystemBase {
 
     // Creating new navX gyro
     private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(1, "Canivore");
+    private final AHRS navX = new AHRS(Port.kMXP);
 
     // Creating our pose and odometry
     private Pose2d m_pose = new Pose2d();
@@ -144,7 +147,8 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("fr", Math.toDegrees(m_frontRightModule.getSteerAngle()));
         SmartDashboard.putNumber("br", Math.toDegrees(m_backRightModule.getSteerAngle()));
 
-        SmartDashboard.putNumber("pigeon yaw", getYaw2d().getDegrees());
+        SmartDashboard.putNumber("pigeon yaw", pigeon.getYaw());
+        SmartDashboard.putNumber("navX yaw",  navX.getYaw());
         SmartDashboard.putNumber("pose yaw", getPose().getRotation().getDegrees());
 
     }
@@ -228,7 +232,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Rotation2d getYaw2d() {
-        return Rotation2d.fromDegrees(360 - MathUtil.inputModulus(pigeon.getYaw() + 90, 0, 360));
+        return Rotation2d.fromDegrees(MathUtil.inputModulus(pigeon.getYaw() - 90, 0, 360));// Rotation2d.fromDegrees(360 - MathUtil.inputModulus(pigeon.getYaw() + 90, 0, 360));
     }
 
     private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
@@ -237,6 +241,7 @@ public class Drivetrain extends SubsystemBase {
 
     public void zeroYaw() {
         pigeon.setYaw(0);
+        navX.zeroYaw();
     }
 
     public Pose2d getPose() {
