@@ -8,7 +8,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.IOException;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
+import frc.lightningUtil.logging.DataLogger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -28,6 +29,8 @@ public class RobotContainer {
 
     private final XboxController driver = new XboxController(0);
     private final double deadzone = 0.1;
+
+    frc.robot.PPSwerveControllerCommand swerveCommand;
 
     // Creates our sendable chooser and Atuonomous dashboard tab
     private SendableChooser<Command> chooser = new SendableChooser<>();
@@ -64,9 +67,9 @@ public class RobotContainer {
                 new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
         try {
             // Creates a trajectory using pathplanner generated wpilib json files
-            makeTrajectory("meter");
-            makeTrajectory("circle");
-            makeTrajectory("funny-path");
+            // makeTrajectory("meter");
+            // makeTrajectory makeTrajectory("circle");
+            // makeTrajectory makeTrajectory("funny-path");
             makeTrajectory("test-path");
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,13 +119,17 @@ public class RobotContainer {
         // drivetrain));
 
         // Adds generated swerve path to chooser
-        chooser.addOption(name, new PPSwerveControllerCommand(trajectory,
-                drivetrain::getPose, drivetrain.getDriveKinematics(),
-                xController,
-                yController,
-                thetaController,
-                drivetrain::setStates,
-                drivetrain));
+        swerveCommand = new frc.robot.PPSwerveControllerCommand(trajectory,
+            drivetrain::getPose, drivetrain.getDriveKinematics(),
+            xController,
+            yController,
+            thetaController,
+            drivetrain::setStates,
+            drivetrain);
+        chooser.addOption(name, swerveCommand);
+
+        DataLogger.addDataElement("desired holonomic roatation", () -> swerveCommand.getDesiredState().holonomicRotation.getDegrees());
+        DataLogger.addDataElement("holonomic rotation calculation", () -> swerveCommand.getHolonomicDriveController().calculate(drivetrain.getPose(), swerveCommand.getDesiredState(), swerveCommand.getDesiredState().holonomicRotation).omegaRadiansPerSecond);
 
     }
 

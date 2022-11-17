@@ -45,6 +45,7 @@ import frc.robot.Constants.DrivetrainConstants.Gains;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -174,8 +175,8 @@ public class Drivetrain extends SubsystemBase {
             SwerveModuleState backLeftState = states[2];
             SwerveModuleState backRightState = states[3];
 
-            SwerveDriveKinematics.desaturateWheelSpeeds(states,
-                    MAX_VELOCITY_METERS_PER_SECOND);
+            // SwerveDriveKinematics.desaturateWheelSpeeds(states,
+            //         MAX_VELOCITY_METERS_PER_SECOND);
 
             m_frontLeftModule.set(velocityToDriveVolts(frontLeftState.speedMetersPerSecond),
                     frontLeftState.angle.getRadians());
@@ -196,19 +197,20 @@ public class Drivetrain extends SubsystemBase {
 
     public void initLogging() {
         System.out.println("********************** initlogging drivetrain");
-        DataLogger.addDataElement("fl steer angle", () -> m_frontLeftModule.getSteerAngle());
+        DataLogger.addDataElement("fl steer angle", () -> Math.toDegrees(m_frontLeftModule.getSteerAngle()));
         DataLogger.addDataElement("fl drive velocity", () -> m_frontLeftModule.getDriveVelocity());
-        DataLogger.addDataElement("fr steer angle", () -> m_frontRightModule.getSteerAngle());
+        DataLogger.addDataElement("fr steer angle", () -> Math.toDegrees(m_frontRightModule.getSteerAngle()));
         DataLogger.addDataElement("fr drive velocity", () -> m_frontRightModule.getDriveVelocity());
-        DataLogger.addDataElement("bl steer angle", () -> m_backLeftModule.getSteerAngle());
+        DataLogger.addDataElement("bl steer angle", () -> Math.toDegrees(m_backLeftModule.getSteerAngle()));
         DataLogger.addDataElement("bl drive velocity", () -> m_backLeftModule.getDriveVelocity());
-        DataLogger.addDataElement("br steer angle", () -> m_backRightModule.getSteerAngle());
+        DataLogger.addDataElement("br steer angle", () -> Math.toDegrees(m_backRightModule.getSteerAngle()));
         DataLogger.addDataElement("br drive velocity", () -> m_backRightModule.getDriveVelocity());
 
         DataLogger.addDataElement("Heading", () -> getYaw2d().getDegrees());
 
         DataLogger.addDataElement("poseX", () -> getPose().getX());
         DataLogger.addDataElement("poseY", () -> getPose().getY());
+        DataLogger.addDataElement("pose rotation", () -> getPose().getRotation().getDegrees());
     }
 
     public void setStates(SwerveModuleState[] newStates) {
@@ -228,6 +230,7 @@ public class Drivetrain extends SubsystemBase {
 
     private double velocityToDriveVolts(double speedMetersPerSecond) {
         double ff = m_feedForward.calculate(speedMetersPerSecond);
+        System.out.println(ff);
         return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
     }
 
