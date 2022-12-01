@@ -175,8 +175,8 @@ public class Drivetrain extends SubsystemBase {
             SwerveModuleState backLeftState = states[2];
             SwerveModuleState backRightState = states[3];
 
-            // SwerveDriveKinematics.desaturateWheelSpeeds(states,
-            //         MAX_VELOCITY_METERS_PER_SECOND);
+            SwerveDriveKinematics.desaturateWheelSpeeds(states,
+                    MAX_VELOCITY_METERS_PER_SECOND);
 
             m_frontLeftModule.set(velocityToDriveVolts(frontLeftState.speedMetersPerSecond),
                     frontLeftState.angle.getRadians());
@@ -230,7 +230,6 @@ public class Drivetrain extends SubsystemBase {
 
     private double velocityToDriveVolts(double speedMetersPerSecond) {
         double ff = m_feedForward.calculate(speedMetersPerSecond);
-        System.out.println(ff);
         return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
     }
 
