@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lightningUtil.logging.DataLogger;
 import frc.lightningUtil.swervelib.Mk3SwerveModuleHelper;
+import frc.lightningUtil.swervelib.Mk4SwerveModuleHelper;
 import frc.lightningUtil.swervelib.SwerveModule;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
@@ -87,44 +88,44 @@ public class Drivetrain extends SubsystemBase {
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
         // Making front left module
-        m_frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
+        m_frontLeftModule = Mk4SwerveModuleHelper.createNeo(
                 tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(0, 0),
-                Mk3SwerveModuleHelper.GearRatio.FAST,
+                    Mk4SwerveModuleHelper.GearRatio.L3,
                 FRONT_LEFT_MODULE_DRIVE_MOTOR,
                 FRONT_LEFT_MODULE_STEER_MOTOR,
                 FRONT_LEFT_MODULE_STEER_ENCODER,
                 FRONT_LEFT_MODULE_STEER_OFFSET);
 
         // Making front right module
-        m_frontRightModule = Mk3SwerveModuleHelper.createFalcon500(
+        m_frontRightModule = Mk4SwerveModuleHelper.createNeo(
                 tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(2, 0),
-                Mk3SwerveModuleHelper.GearRatio.FAST,
+                    Mk4SwerveModuleHelper.GearRatio.L3,
                 FRONT_RIGHT_MODULE_DRIVE_MOTOR,
                 FRONT_RIGHT_MODULE_STEER_MOTOR,
                 FRONT_RIGHT_MODULE_STEER_ENCODER,
                 FRONT_RIGHT_MODULE_STEER_OFFSET);
 
         // Making backleft module
-        m_backLeftModule = Mk3SwerveModuleHelper.createFalcon500(
+        m_backLeftModule = Mk4SwerveModuleHelper.createNeo(
                 tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(4, 0),
-                Mk3SwerveModuleHelper.GearRatio.FAST,
+                    Mk4SwerveModuleHelper.GearRatio.L3,
                 BACK_LEFT_MODULE_DRIVE_MOTOR,
                 BACK_LEFT_MODULE_STEER_MOTOR,
                 BACK_LEFT_MODULE_STEER_ENCODER,
                 BACK_LEFT_MODULE_STEER_OFFSET);
 
         // Making back right module
-        m_backRightModule = Mk3SwerveModuleHelper.createFalcon500(
+        m_backRightModule = Mk4SwerveModuleHelper.createNeo(
                 tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(6, 0),
-                Mk3SwerveModuleHelper.GearRatio.FAST,
+                    Mk4SwerveModuleHelper.GearRatio.L3,
                 BACK_RIGHT_MODULE_DRIVE_MOTOR,
                 BACK_RIGHT_MODULE_STEER_MOTOR,
                 BACK_RIGHT_MODULE_STEER_ENCODER,
