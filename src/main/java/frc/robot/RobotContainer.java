@@ -103,7 +103,7 @@ public class RobotContainer {
                         Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         2 * Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
-        thetaController.enableContinuousInput(-180, 180);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         // Set the starting point of the drivetrain
         drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation);
@@ -132,5 +132,4 @@ public class RobotContainer {
         DataLogger.addDataElement("holonomic rotation calculation", () -> swerveCommand.getHolonomicDriveController().calculate(drivetrain.getPose(), swerveCommand.getDesiredState(), swerveCommand.getDesiredState().holonomicRotation).omegaRadiansPerSecond);
 
     }
-
 }
