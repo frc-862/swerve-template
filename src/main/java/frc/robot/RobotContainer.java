@@ -17,6 +17,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
 import frc.robot.Constants.DrivetrainConstants.Gains;
@@ -106,7 +107,7 @@ public class RobotContainer {
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
         // Set the starting point of the drivetrain
-        drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation);
+        // drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation);
 
         // chooser.addOption(name, new SwerveControllerCommand(trajectory,
         // drivetrain::getPose,
@@ -126,7 +127,10 @@ public class RobotContainer {
             thetaController,
             drivetrain::setStates,
             drivetrain);
-        chooser.addOption(name, swerveCommand);
+        chooser.addOption(name, 
+        new SequentialCommandGroup(
+            new InstantCommand(() -> drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation)), 
+            swerveCommand));
 
         DataLogger.addDataElement("desired holonomic roatation", () -> swerveCommand.getDesiredState().holonomicRotation.getDegrees());
         DataLogger.addDataElement("holonomic rotation calculation", () -> swerveCommand.getHolonomicDriveController().calculate(drivetrain.getPose(), swerveCommand.getDesiredState(), swerveCommand.getDesiredState().holonomicRotation).omegaRadiansPerSecond);
