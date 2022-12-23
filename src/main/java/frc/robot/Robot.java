@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
         DataLogger.preventNewDataElements();
-        DataLogger.getLogger().onStart();
+        // DataLogger.getLogger().onStart();
     }
 
     /**
@@ -107,6 +107,8 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        DataLogger.getLogger().onStart();
     }
 
     /** This function is called periodically during operator control. */

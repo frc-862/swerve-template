@@ -29,7 +29,7 @@ public class RobotContainer {
     private final Drivetrain drivetrain = new Drivetrain();
 
     private final XboxController driver = new XboxController(0);
-    private final double deadzone = 0.1;
+    private final double deadzone = 0.05;
 
     frc.robot.PPSwerveControllerCommand swerveCommand;
 
@@ -90,11 +90,7 @@ public class RobotContainer {
      * @throws IOException
      */
     public void makeTrajectory(String name) throws IOException {
-        // Path filePath = Filesystem.getDeployDirectory().toPath()
-        // .resolve("pathplanner/generatedJSON/" + name + ".wpilib.json");
-        // Trajectory trajectory = TrajectoryUtil.fromPathweaverJson(filePath);
-
-        PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, 1, 1);
+        PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, 0.01, 0.01);
 
         // PID controllers
         PIDController xController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
@@ -106,34 +102,23 @@ public class RobotContainer {
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        // Set the starting point of the drivetrain
-        // drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation);
-
-        // chooser.addOption(name, new SwerveControllerCommand(trajectory,
-        // drivetrain::getPose,
-        // drivetrain.getDriveKinematics(),
-        // xController,
-        // yController,
-        // thetaController,
-        // () -> new Rotation2d(180),
-        // drivetrain::setStates,
-        // drivetrain));
-
         // Adds generated swerve path to chooser
         swerveCommand = new frc.robot.PPSwerveControllerCommand(trajectory,
-            drivetrain::getPose, drivetrain.getDriveKinematics(),
-            xController,
-            yController,
-            thetaController,
-            drivetrain::setStates,
-            drivetrain);
-        chooser.addOption(name, 
-        new SequentialCommandGroup(
-            new InstantCommand(() -> drivetrain.setInitialPose(trajectory.getInitialPose(), trajectory.getInitialState().holonomicRotation)), 
-            swerveCommand));
+                drivetrain::getPose,
+                drivetrain.getDriveKinematics(),
+                xController,
+                yController,
+                thetaController,
+                drivetrain::setStates,
+                drivetrain);
 
-        DataLogger.addDataElement("desired holonomic roatation", () -> swerveCommand.getDesiredState().holonomicRotation.getDegrees());
-        DataLogger.addDataElement("holonomic rotation calculation", () -> swerveCommand.getHolonomicDriveController().calculate(drivetrain.getPose(), swerveCommand.getDesiredState(), swerveCommand.getDesiredState().holonomicRotation).omegaRadiansPerSecond);
+        chooser.addOption(name,
+                new SequentialCommandGroup(
+                        new InstantCommand(() -> drivetrain.setInitialPose(trajectory.getInitialPose(),
+                                trajectory.getInitialState().holonomicRotation)),
+                        swerveCommand));
 
+        DataLogger.addDataElement("desired holonomic roatation",
+                () -> swerveCommand.getDesiredState().holonomicRotation.getDegrees());
     }
 }

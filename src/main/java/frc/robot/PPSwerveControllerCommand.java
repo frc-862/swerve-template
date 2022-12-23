@@ -10,11 +10,13 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.lightningUtil.logging.DataLogger;
 
 /**
  * A command that uses two PID controllers ({@link PIDController}) and a
@@ -47,6 +49,9 @@ public class PPSwerveControllerCommand extends CommandBase {
     private final Consumer<SwerveModuleState[]> m_outputModuleStates;
 
     private PathPlannerState desiredState = new PathPlannerState();
+
+    private ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds();
+    private SwerveModuleState[] targetModuleStates = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 
     /**
      * Constructs a new PPSwerveControllerCommand that when executed will follow the
@@ -97,8 +102,16 @@ public class PPSwerveControllerCommand extends CommandBase {
 
         m_outputModuleStates = outputModuleStates;
 
+        DataLogger.addDataElement("fl target auton module state angle", () -> targetModuleStates[0].angle.getDegrees());
+        DataLogger.addDataElement("fr target auton module state angle", () -> targetModuleStates[1].angle.getDegrees());
+        DataLogger.addDataElement("bl target auton module state angle", () -> targetModuleStates[2].angle.getDegrees());
+        DataLogger.addDataElement("br target auton module state angle", () -> targetModuleStates[3].angle.getDegrees());
+
+        DataLogger.addDataElement("holonomic rotation calculation speed", () -> targetChassisSpeeds.omegaRadiansPerSecond);
+        
+
         addRequirements(requirements);
-    }
+    }   
 
     @Override
     public void initialize() {
@@ -112,12 +125,12 @@ public class PPSwerveControllerCommand extends CommandBase {
         double curTime = m_timer.get();
         desiredState = (PathPlannerState) m_trajectory.sample(curTime);
 
-        var targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, desiredState.holonomicRotation);
-        var targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
+        targetChassisSpeeds = m_controller.calculate(m_pose.get(), desiredState, desiredState.holonomicRotation);
+        targetModuleStates = m_kinematics.toSwerveModuleStates(targetChassisSpeeds);
 
         m_outputModuleStates.accept(targetModuleStates);
     }
-
+    
     @Override
     public void end(boolean interrupted) {
         m_timer.stop();
@@ -134,5 +147,13 @@ public class PPSwerveControllerCommand extends CommandBase {
 
     public HolonomicDriveController getHolonomicDriveController() {
         return m_controller;
+    }
+
+    public ChassisSpeeds getTargetChassieSpeeds() {
+        return targetChassisSpeeds;
+    }
+
+    public SwerveModuleState[] getSwerveModuleStates() {
+        return targetModuleStates;
     }
 }
