@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
-
+import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 import frc.robot.Constants.DrivetrainConstants.ThetaGains;
 import frc.robot.commands.SwerveDrive;
@@ -66,12 +66,11 @@ public class RobotContainer {
         // Create a dashboard chooser for selecting autonomus command
         chooser.setDefaultOption("no path",
                 new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
-        try {
-            // Creates a trajectory using pathplanner generated wpilib json files
-            // makeTrajectory("meter");
+        try {            // Creates a trajectory using pathplanner generated wpilib json files
+            makeTrajectory("meter", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND, DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
             // makeTrajectory makeTrajectory("circle");
             // makeTrajectory makeTrajectory("funny-path");
-            makeTrajectory("test-path");
+            makeTrajectory("test-path", 0.1, 0.1);
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to Make Trajectory");
@@ -89,8 +88,8 @@ public class RobotContainer {
      *             folder (no ".wpilib.json")
      * @throws IOException
      */
-    public void makeTrajectory(String name) throws IOException {
-        PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, 0.01, 0.01);
+    public void makeTrajectory(String name, double maxVelocity, double maxAcceleration) throws IOException {
+        PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, maxVelocity, maxVelocity);
 
         // PID controllers
         PIDController xController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
