@@ -7,7 +7,7 @@ import frc.robot.subsystems.Drivetrain;
 import java.util.function.DoubleSupplier;
 
 public class SwerveDrive extends CommandBase {
-    private final Drivetrain m_drivetrainSubsystem;
+    private final Drivetrain drivetrain;
 
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
@@ -17,7 +17,7 @@ public class SwerveDrive extends CommandBase {
             DoubleSupplier translationXSupplier,
             DoubleSupplier translationYSupplier,
             DoubleSupplier rotationSupplier) {
-        this.m_drivetrainSubsystem = drivetrainSubsystem;
+        this.drivetrain = drivetrainSubsystem;
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
         this.m_rotationSupplier = rotationSupplier;
@@ -27,16 +27,16 @@ public class SwerveDrive extends CommandBase {
 
     @Override
     public void execute() {
-        m_drivetrainSubsystem.drive(
+        drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                        m_translationXSupplier.getAsDouble(),
-                        m_translationYSupplier.getAsDouble(),
-                        m_rotationSupplier.getAsDouble(),
-                        m_drivetrainSubsystem.getYaw2d()));
+                        drivetrain.percentOutputToMetersPerSecond(m_translationXSupplier.getAsDouble()),
+                        drivetrain.percentOutputToMetersPerSecond(m_translationYSupplier.getAsDouble()),
+                        drivetrain.percentOutputToRadiansPerSecond(m_rotationSupplier.getAsDouble()),
+                        drivetrain.getYaw2d()));
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+        drivetrain.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
     }
 }

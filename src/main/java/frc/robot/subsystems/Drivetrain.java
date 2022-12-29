@@ -19,6 +19,7 @@ import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_E
 import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
 import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
 import static frc.robot.Constants.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
+import static frc.robot.Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
 import static frc.robot.Constants.DrivetrainConstants.MAX_VOLTAGE;
 
 import edu.wpi.first.math.MathUtil;
@@ -30,7 +31,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -44,7 +44,6 @@ import frc.lightningUtil.swervelib.SwerveModule;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
-import com.kauailabs.navx.frc.AHRS;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -236,6 +235,14 @@ public class Drivetrain extends SubsystemBase {
 
     private SwerveModuleState stateFromModule(SwerveModule swerveModule) {
         return new SwerveModuleState(swerveModule.getDriveVelocity(), new Rotation2d(swerveModule.getSteerAngle()));
+    }
+
+    public double percentOutputToMetersPerSecond(double percentOutput) {
+        return percentOutput * MAX_VELOCITY_METERS_PER_SECOND;
+    }
+
+    public double percentOutputToRadiansPerSecond(double percentOutput) {
+        return percentOutput * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
     }
 
     public void zeroYaw() {
