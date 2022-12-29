@@ -6,15 +6,19 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
@@ -68,9 +72,15 @@ public class RobotContainer {
                 new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
 
         try {
+
+            HashMap<String, Command> eventMap = new HashMap<>();
+            eventMap.put("Stop", new InstantCommand(() -> drivetrain.stop()));
+            eventMap.put("Stop Print", new InstantCommand(drivetrain::stop, drivetrain));
+
             // creates a trajectory using pathplanner
-            makeTrajectory("meter", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
-                    DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
+            makeTrajectory("test-path", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                    DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                    eventMap);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -90,33 +100,30 @@ public class RobotContainer {
      *             folder (no ".wpilib.json")
      * @throws IOException
      */
-    public void makeTrajectory(String name, double maxVelocity, double maxAcceleration) throws IOException {
-        PathPlannerTrajectory trajectory = PathPlanner.loadPath(name, maxVelocity, maxVelocity);
+    public void makeTrajectory(String name, double maxVelocity, double maxAcceleration,
+            HashMap<String, Command> eventMap) throws IOException {
+        ArrayList<PathPlannerTrajectory> trajectory = PathPlanner.loadPathGroup(name, maxVelocity, maxVelocity);
+
+        eventMap.put("Set Inital Pose", new InstantCommand(() -> drivetrain
+                .setInitialPose(trajectory.get(0).getInitialPose(), trajectory.get(0).getInitialPose().getRotation())));
+        eventMap.put("Set Inital Pose Print", new PrintCommand("Set Initial Pose"));
+
+        eventMap.put("End Path Print", new PrintCommand("End Path"));
 
         // PID controllers
-        PIDController xController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
-        PIDController yController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
-        PIDController thetaController = new PIDController(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD);
+        PIDConstants xConstants = new PIDConstants(Gains.kP, Gains.kI, Gains.kD);
+        PIDConstants thetaConstants = new PIDConstants(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD);
 
-        // enables continuous input for the theta controller
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        // adds generated swerve path to chooser
-        PPSwerveControllerCommand swerveCommand = new PPSwerveControllerCommand(trajectory, 
-        drivetrain::getPose, 
-        xController, 
-        yController, 
-        thetaController, 
-        drivetrain::setChassisSpeeds, 
-        drivetrain);
+        SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+                drivetrain::getPose,
+                drivetrain::resetOdometry,
+                xConstants,
+                thetaConstants,
+                drivetrain::setChassisSpeeds,
+                eventMap,
+                drivetrain);
 
         // adds the command to the chooser
-        chooser.addOption(name,
-                // a sequential command group that will set the initial pose of the robot and
-                // run the path
-                new SequentialCommandGroup(
-                        new InstantCommand(() -> drivetrain.setInitialPose(trajectory.getInitialPose(),
-                                trajectory.getInitialState().holonomicRotation)),
-                        swerveCommand));
+        chooser.addOption(name, autoBuilder.fullAuto(trajectory));
     }
 }

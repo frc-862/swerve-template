@@ -1,1 +1,85 @@
-{"waypoints":[{"anchorPoint":{"x":1.0,"y":3.0},"prevControl":null,"nextControl":{"x":1.0177539689810655,"y":3.0},"holonomicAngle":0.0,"isReversal":false,"velOverride":null,"isLocked":false},{"anchorPoint":{"x":1.0,"y":3.0039542585205887},"prevControl":{"x":0.9945734508160045,"y":3.0039542585205887},"nextControl":null,"holonomicAngle":180.0,"isReversal":false,"velOverride":null,"isLocked":false}],"maxVelocity":0.1,"maxAcceleration":0.1,"isReversed":null}
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 2.0,
+        "y": 3.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.2547408716926047,
+        "y": 3.0
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "Set Inital Pose",
+          "Set Inital Pose Print"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.262520556221513,
+        "y": 2.9875890486747574
+      },
+      "prevControl": {
+        "x": 2.99993330789589,
+        "y": 2.9875890486747574
+      },
+      "nextControl": {
+        "x": 3.525107804547138,
+        "y": 2.9875890486747574
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "Stop",
+          "Print Stop"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "after",
+        "waitTime": 5.0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.325589052068972,
+        "y": 3.2166986382970544
+      },
+      "prevControl": {
+        "x": 3.9040274071639454,
+        "y": 3.2441917890517304
+      },
+      "nextControl": null,
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "End Path Print"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "maxVelocity": 3.0,
+  "maxAcceleration": 3.0,
+  "isReversed": null,
+  "markers": []
+}

@@ -395,4 +395,11 @@ public class Drivetrain extends SubsystemBase {
     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
         this.chassisSpeeds = chassisSpeeds;
     }
+
+    public void stop() {
+        m_frontLeftModule.set(0, 45);
+        m_frontRightModule.set(0, 45);
+        m_backLeftModule.set(0, 45);
+        m_backRightModule.set(0, 45);
+    }
 }
