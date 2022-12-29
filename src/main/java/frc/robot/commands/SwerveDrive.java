@@ -13,6 +13,14 @@ public class SwerveDrive extends CommandBase {
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
 
+    /**
+     * Creates a new SwerveDrive command.
+     *
+     * @param drivetrainSubsystem The drivetrain subsystem this command will run on
+     * @param translationXSupplier The control input for the translation in the X direction
+     * @param translationYSupplier The control input for the translation in the Y direction
+     * @param rotationSupplier The control input for rotation
+     */
     public SwerveDrive(Drivetrain drivetrainSubsystem,
             DoubleSupplier translationXSupplier,
             DoubleSupplier translationYSupplier,

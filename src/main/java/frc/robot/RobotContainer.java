@@ -8,13 +8,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.IOException;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-
-import frc.lightningUtil.logging.DataLogger;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -26,23 +23,23 @@ import frc.robot.commands.SwerveDrive;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
+    // creates our drivetrain subsystem
     private final Drivetrain drivetrain = new Drivetrain();
 
+    // creates our driver controller and deadzone
     private final XboxController driver = new XboxController(0);
-    private final double deadzone = 0.05;
+    private final double deadzone = 0.08;
 
-    frc.robot.PPSwerveControllerCommand swerveCommand;
-
-    // Creates our sendable chooser and Atuonomous dashboard tab
+    // creates our sendable chooser and Atuonomous dashboard tab
     private SendableChooser<Command> chooser = new SendableChooser<>();
     private ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
     public RobotContainer() {
-        // Set up the default command for the drivetrain.
-        // The controls are for field-oriented driving:
-        // Left stick Y axis -> forward and backwards movement
-        // Left stick X axis -> left and right movement
-        // Right stick X axis -> rotation
+        // set up the default command for the drivetrain.
+        // the controls are for field-oriented driving:
+        // left stick Y axis -> forward and backwards movement
+        // left stick X axis -> left and right movement
+        // right stick X axis -> rotation
         drivetrain.setDefaultCommand(
                 new SwerveDrive(drivetrain, () -> -MathUtil.applyDeadband(driver.getLeftX(), deadzone),
                         () -> MathUtil.applyDeadband(driver.getLeftY(), deadzone),
@@ -52,30 +49,35 @@ public class RobotContainer {
         configureButtonBindings();
     }
 
+    // configure the button bindings
     private void configureButtonBindings() {
-        // Back button to reset feild centeric driving to current heading of the robot
+        // back button to reset feild centeric driving to current heading of the robot
         new Button(driver::getBackButton)
                 .whenPressed(drivetrain::zeroYaw);
     }
 
+    // returns the autonomous command
     public Command getAutonomousCommand() {
         return chooser.getSelected();
     }
 
+    // creates the autonomous commands
     private void ConfigureAutonomousCommands() {
-        // Create a dashboard chooser for selecting autonomus command
+        // create a dashboard chooser for selecting autonomus command
         chooser.setDefaultOption("no path",
                 new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
-        try {            // Creates a trajectory using pathplanner generated wpilib json files
-            makeTrajectory("meter", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND, DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
-            // makeTrajectory makeTrajectory("circle");
-            // makeTrajectory makeTrajectory("funny-path");
-            makeTrajectory("test-path", 0.1, 0.1);
+
+        try {
+            // creates a trajectory using pathplanner
+            makeTrajectory("meter", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                    DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
+
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to Make Trajectory");
         }
 
+        // adds the chooser to the atuonomous tab
         autonomousTab.add("chooser", chooser);
     }
 
@@ -94,30 +96,27 @@ public class RobotContainer {
         // PID controllers
         PIDController xController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
         PIDController yController = new PIDController(Gains.kP, Gains.kI, Gains.kD);
-        ProfiledPIDController thetaController = new ProfiledPIDController(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD,
-                new TrapezoidProfile.Constraints(
-                        Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                        2 * Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
+        PIDController thetaController = new PIDController(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD);
 
+        // enables continuous input for the theta controller
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-        // Adds generated swerve path to chooser
-        swerveCommand = new frc.robot.PPSwerveControllerCommand(trajectory,
-                drivetrain::getPose,
-                drivetrain.getDriveKinematics(),
-                xController,
-                yController,
-                thetaController,
-                drivetrain::setStates,
-                drivetrain);
+        // adds generated swerve path to chooser
+        PPSwerveControllerCommand swerveCommand = new PPSwerveControllerCommand(trajectory, 
+        drivetrain::getPose, 
+        xController, 
+        yController, 
+        thetaController, 
+        drivetrain::setChassisSpeeds, 
+        drivetrain);
 
+        // adds the command to the chooser
         chooser.addOption(name,
+                // a sequential command group that will set the initial pose of the robot and
+                // run the path
                 new SequentialCommandGroup(
                         new InstantCommand(() -> drivetrain.setInitialPose(trajectory.getInitialPose(),
                                 trajectory.getInitialState().holonomicRotation)),
                         swerveCommand));
-
-        DataLogger.addDataElement("desired holonomic roatation",
-                () -> swerveCommand.getDesiredState().holonomicRotation.getDegrees());
     }
 }
