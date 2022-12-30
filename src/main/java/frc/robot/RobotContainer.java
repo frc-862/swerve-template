@@ -9,19 +9,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.plaf.synth.SynthStyleFactory;
-
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 import frc.robot.Constants.DrivetrainConstants.ThetaGains;
@@ -60,8 +57,8 @@ public class RobotContainer {
     // configure the button bindings
     private void configureButtonBindings() {
         // back button to reset feild centeric driving to current heading of the robot
-        new Button(driver::getBackButton)
-                .whenPressed(drivetrain::zeroYaw);
+        new Trigger(driver::getBackButton)
+                .onTrue(new InstantCommand(drivetrain::zeroYaw, drivetrain));
     }
 
     // returns the autonomous command
@@ -75,8 +72,8 @@ public class RobotContainer {
         chooser.setDefaultOption("no path",
                 new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
 
-        eventMap.put("Stop", new InstantCommand(() -> drivetrain.stop()));
-        eventMap.put("Stop Print", new InstantCommand(drivetrain::stop, drivetrain));
+        eventMap.put("Stop", new InstantCommand(drivetrain::stop));
+        eventMap.put("Stop Print", new PrintCommand("stopped robot"));
 
         // creates a trajectory using pathplanner
         makeTrajectory("test-path", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
