@@ -321,8 +321,9 @@ public class Drivetrain extends SubsystemBase {
      * @param pose the pose to which to set the odometry
      */
     public void resetOdometry(Pose2d pose) {
-        m_odometry.resetPosition(pose, new Rotation2d());
+        m_odometry.resetPosition(pose, pose.getRotation());
     }
+
 
     /**
      * Gets the kinematics of the robot.

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.plaf.synth.SynthStyleFactory;
+
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
@@ -37,6 +39,8 @@ public class RobotContainer {
     // creates our sendable chooser and Atuonomous dashboard tab
     private SendableChooser<Command> chooser = new SendableChooser<>();
     private ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
+
+    private HashMap<String, Command> eventMap = new HashMap<>();
 
     public RobotContainer() {
         // set up the default command for the drivetrain.
@@ -71,21 +75,14 @@ public class RobotContainer {
         chooser.setDefaultOption("no path",
                 new InstantCommand(() -> System.out.println("you should be doing nothing right now")));
 
-        try {
+        eventMap.put("Stop", new InstantCommand(() -> drivetrain.stop()));
+        eventMap.put("Stop Print", new InstantCommand(drivetrain::stop, drivetrain));
 
-            HashMap<String, Command> eventMap = new HashMap<>();
-            eventMap.put("Stop", new InstantCommand(() -> drivetrain.stop()));
-            eventMap.put("Stop Print", new InstantCommand(drivetrain::stop, drivetrain));
+        // creates a trajectory using pathplanner
+        makeTrajectory("test-path", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                eventMap);
 
-            // creates a trajectory using pathplanner
-            makeTrajectory("test-path", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
-                    DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
-                    eventMap);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Failed to Make Trajectory");
-        }
 
         // adds the chooser to the atuonomous tab
         autonomousTab.add("chooser", chooser);
@@ -101,7 +98,7 @@ public class RobotContainer {
      * @throws IOException
      */
     public void makeTrajectory(String name, double maxVelocity, double maxAcceleration,
-            HashMap<String, Command> eventMap) throws IOException {
+            HashMap<String, Command> eventMap) {
         ArrayList<PathPlannerTrajectory> trajectory = PathPlanner.loadPathGroup(name, maxVelocity, maxVelocity);
 
         eventMap.put("Set Inital Pose", new InstantCommand(() -> drivetrain
@@ -117,9 +114,10 @@ public class RobotContainer {
         SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
                 drivetrain::getPose,
                 drivetrain::resetOdometry,
+                drivetrain.getDriveKinematics(),
                 xConstants,
                 thetaConstants,
-                drivetrain::setChassisSpeeds,
+                drivetrain::setStates,
                 eventMap,
                 drivetrain);
 
