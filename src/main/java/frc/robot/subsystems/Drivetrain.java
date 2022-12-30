@@ -30,6 +30,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -65,6 +66,8 @@ public class Drivetrain extends SubsystemBase {
     private Pose2d m_pose = new Pose2d();
     private SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(kinematics, getYaw2d(), m_pose);
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
+
+    private SwerveModulePosition[] m_modulePositions;
 
     // creating our feed forward
     private final SimpleMotorFeedforward m_feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);
@@ -202,6 +205,10 @@ public class Drivetrain extends SubsystemBase {
         m_pose = m_odometry.update(getYaw2d(),
                 stateFromModule(m_frontLeftModule), stateFromModule(m_frontRightModule),
                 stateFromModule(m_backLeftModule), stateFromModule(m_backRightModule));
+    }
+
+    public void updateModulePositions() {
+        m_modulePositions = {new SwerveModulePosition(m_frontLeftModule.get)}
     }
 
     /**
