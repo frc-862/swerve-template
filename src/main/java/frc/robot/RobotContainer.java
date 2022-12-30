@@ -28,7 +28,7 @@ public class RobotContainer {
 
     // creates our driver controller and deadzone
     private final XboxController driver = new XboxController(0);
-    private final double deadzone = 0.08;
+    private final double deadzone = 0.15;
 
     // creates our sendable chooser and Atuonomous dashboard tab
     private SendableChooser<Command> chooser = new SendableChooser<>();
