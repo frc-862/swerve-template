@@ -15,16 +15,12 @@ import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer extends LightningContainer {
     // creates our drivetrain subsystem
-    private final Drivetrain drivetrain = new Drivetrain();
+    private static final Drivetrain drivetrain = new Drivetrain();
 
     // creates our driver controller and deadzone
-    private final XboxController driver = new XboxController(0);
-    private final JoystickFilter joystickFilter = new JoystickFilter(XboxControllerConstants.DEADBAND,
+    private static final XboxController driver = new XboxController(0);
+    private static final JoystickFilter joystickFilter = new JoystickFilter(XboxControllerConstants.DEADBAND,
             XboxControllerConstants.MIN_POWER, XboxControllerConstants.MAX_POWER, Mode.CUBED);
-
-    public RobotContainer() {
-
-    }
 
     // configure the button bindings
     @Override
@@ -50,7 +46,7 @@ public class RobotContainer extends LightningContainer {
         // left stick X axis -> left and right movement
         // right stick X axis -> rotation
         drivetrain.setDefaultCommand(
-                new SwerveDrive(drivetrain, () -> joystickFilter.filter(driver.getLeftX()),
+                new SwerveDrive(drivetrain, () -> -joystickFilter.filter(driver.getLeftX()),
                         () -> joystickFilter.filter(driver.getLeftY()),
                         () -> -joystickFilter.filter(driver.getRightX())));
 
@@ -58,7 +54,7 @@ public class RobotContainer extends LightningContainer {
 
     @Override
     protected void configureSystemTests() {
-        SystemTest.registerTest("test systest", new PrintCommand("this is a system test"));
+        SystemTest.registerTest("test systest", new PrintCommand("Hi"));
     }
 
     @Override
