@@ -54,7 +54,6 @@ public class RobotContainer extends LightningContainer {
 
     @Override
     protected void configureSystemTests() {
-        SystemTest.registerTest("test systest", new PrintCommand("Hi"));
     }
 
     @Override
