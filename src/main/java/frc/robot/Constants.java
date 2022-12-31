@@ -6,6 +6,13 @@ import frc.lightningUtil.swervelib.SdsModuleConfigurations;
 
 public final class Constants {
 
+    public static final class XboxControllerConstants {
+        public static final double DEADBAND = 0.15;
+        public static final double MIN_POWER = 0d;
+        public static final double MAX_POWER = 1d;
+        
+    }
+
     public static final class DrivetrainConstants {
 
         // our drivetrain and track width
