@@ -7,17 +7,25 @@ import frc.robot.subsystems.Drivetrain;
 import java.util.function.DoubleSupplier;
 
 public class SwerveDrive extends CommandBase {
-    private final Drivetrain m_drivetrainSubsystem;
+    private final Drivetrain drivetrain;
 
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
 
+    /**
+     * Creates a new SwerveDrive command.
+     *
+     * @param drivetrainSubsystem The drivetrain subsystem this command will run on
+     * @param translationXSupplier The control input for the translation in the X direction
+     * @param translationYSupplier The control input for the translation in the Y direction
+     * @param rotationSupplier The control input for rotation
+     */
     public SwerveDrive(Drivetrain drivetrainSubsystem,
             DoubleSupplier translationXSupplier,
             DoubleSupplier translationYSupplier,
             DoubleSupplier rotationSupplier) {
-        this.m_drivetrainSubsystem = drivetrainSubsystem;
+        this.drivetrain = drivetrainSubsystem;
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
         this.m_rotationSupplier = rotationSupplier;
@@ -27,16 +35,16 @@ public class SwerveDrive extends CommandBase {
 
     @Override
     public void execute() {
-        m_drivetrainSubsystem.drive(
+        drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                        m_translationXSupplier.getAsDouble(),
-                        m_translationYSupplier.getAsDouble(),
-                        m_rotationSupplier.getAsDouble(),
-                        m_drivetrainSubsystem.getGyroscopeRotation()));
+                        drivetrain.percentOutputToMetersPerSecond(m_translationXSupplier.getAsDouble()),
+                        drivetrain.percentOutputToMetersPerSecond(m_translationYSupplier.getAsDouble()),
+                        drivetrain.percentOutputToRadiansPerSecond(m_rotationSupplier.getAsDouble()),
+                        drivetrain.getYaw2d()));
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+        drivetrain.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
     }
 }
