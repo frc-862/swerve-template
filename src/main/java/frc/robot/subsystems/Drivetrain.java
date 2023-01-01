@@ -159,10 +159,12 @@ public class Drivetrain extends SubsystemBase {
         this.chassisSpeeds = chassisSpeeds;
         if (m_states != null && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0
                 && chassisSpeeds.omegaRadiansPerSecond == 0) {
-            m_states[0].speedMetersPerSecond = 0;
-            m_states[1].speedMetersPerSecond = 0;
-            m_states[2].speedMetersPerSecond = 0;
-            m_states[3].speedMetersPerSecond = 0;
+            m_states[0] = new SwerveModuleState(0, new Rotation2d(-45));
+            m_states[1] = new SwerveModuleState(0, new Rotation2d(45));
+            m_states[2] = new SwerveModuleState(0, new Rotation2d(45));
+            m_states[3] = new SwerveModuleState(0, new Rotation2d(-45));
+
+            
         } else {
             m_states = kinematics.toSwerveModuleStates(chassisSpeeds);
         }
