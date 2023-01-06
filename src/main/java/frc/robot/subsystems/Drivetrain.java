@@ -1,27 +1,5 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS;
-import static frc.robot.Constants.DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
-import static frc.robot.Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-import static frc.robot.Constants.DrivetrainConstants.MAX_VOLTAGE;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -41,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lightningUtil.logging.DataLogger;
 import frc.lightningUtil.swervelib.Mk3SwerveModuleHelper;
 import frc.lightningUtil.swervelib.SwerveModule;
+import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
@@ -50,13 +29,13 @@ public class Drivetrain extends SubsystemBase {
     // creates our swerve kinematics using the robots track width and wheel base
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             // front left
-            new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // front right
-            new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // back left
-            new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // back right
-            new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0));
+            new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
     // creating new pigeon2 gyro
     private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(1, "Canivore");
@@ -94,10 +73,10 @@ public class Drivetrain extends SubsystemBase {
                         .withSize(2, 4)
                         .withPosition(0, 0),
                 Mk3SwerveModuleHelper.GearRatio.FAST,
-                FRONT_LEFT_MODULE_DRIVE_MOTOR,
-                FRONT_LEFT_MODULE_STEER_MOTOR,
-                FRONT_LEFT_MODULE_STEER_ENCODER,
-                FRONT_LEFT_MODULE_STEER_OFFSET);
+                DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
+                DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR,
+                DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER,
+                DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET);
 
         // making front right module
         m_frontRightModule = Mk3SwerveModuleHelper.createFalcon500(
@@ -105,10 +84,10 @@ public class Drivetrain extends SubsystemBase {
                         .withSize(2, 4)
                         .withPosition(2, 0),
                 Mk3SwerveModuleHelper.GearRatio.FAST,
-                FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-                FRONT_RIGHT_MODULE_STEER_MOTOR,
-                FRONT_RIGHT_MODULE_STEER_ENCODER,
-                FRONT_RIGHT_MODULE_STEER_OFFSET);
+                DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+                DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR,
+                DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER,
+                DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET);
 
         // making backleft module
         m_backLeftModule = Mk3SwerveModuleHelper.createFalcon500(
@@ -116,10 +95,10 @@ public class Drivetrain extends SubsystemBase {
                         .withSize(2, 4)
                         .withPosition(4, 0),
                 Mk3SwerveModuleHelper.GearRatio.FAST,
-                BACK_LEFT_MODULE_DRIVE_MOTOR,
-                BACK_LEFT_MODULE_STEER_MOTOR,
-                BACK_LEFT_MODULE_STEER_ENCODER,
-                BACK_LEFT_MODULE_STEER_OFFSET);
+                DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR,
+                DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR,
+                DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER,
+                DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET);
 
         // making back right module
         m_backRightModule = Mk3SwerveModuleHelper.createFalcon500(
@@ -127,10 +106,10 @@ public class Drivetrain extends SubsystemBase {
                         .withSize(2, 4)
                         .withPosition(6, 0),
                 Mk3SwerveModuleHelper.GearRatio.FAST,
-                BACK_RIGHT_MODULE_DRIVE_MOTOR,
-                BACK_RIGHT_MODULE_STEER_MOTOR,
-                BACK_RIGHT_MODULE_STEER_ENCODER,
-                BACK_RIGHT_MODULE_STEER_OFFSET);
+                DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
+                DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR,
+                DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER,
+                DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET);
 
         // zero our gyro
         zeroYaw();
@@ -159,7 +138,7 @@ public class Drivetrain extends SubsystemBase {
         this.chassisSpeeds = chassisSpeeds;
         if (m_states != null && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0
                 && chassisSpeeds.omegaRadiansPerSecond == 0) {
-            m_states[0] = new SwerveModuleState(0, new Rotation2d(-45));
+            m_states[0] = new SwerveModuleState(0, new Rotation2d(DrivetrainConstants.FRONT_LEFT_RESTING_ANGLE));
             m_states[1] = new SwerveModuleState(0, new Rotation2d(45));
             m_states[2] = new SwerveModuleState(0, new Rotation2d(45));
             m_states[3] = new SwerveModuleState(0, new Rotation2d(-45));
@@ -184,7 +163,7 @@ public class Drivetrain extends SubsystemBase {
             SwerveModuleState backRightState = states[3];
 
             SwerveDriveKinematics.desaturateWheelSpeeds(states,
-                    MAX_VELOCITY_METERS_PER_SECOND);
+            DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
 
             m_frontLeftModule.set(velocityToDriveVolts(frontLeftState.speedMetersPerSecond),
                     frontLeftState.angle.getRadians());
@@ -259,7 +238,7 @@ public class Drivetrain extends SubsystemBase {
      */
     private double velocityToDriveVolts(double speedMetersPerSecond) {
         double ff = m_feedForward.calculate(speedMetersPerSecond);
-        return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
+        return MathUtil.clamp(ff, -DrivetrainConstants.MAX_VOLTAGE, DrivetrainConstants.MAX_VOLTAGE);
     }
 
     /**
@@ -288,7 +267,7 @@ public class Drivetrain extends SubsystemBase {
      * @return the velocity in meters per second
      */
     public double percentOutputToMetersPerSecond(double percentOutput) {
-        return percentOutput * MAX_VELOCITY_METERS_PER_SECOND;
+        return percentOutput * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
     }
 
     /**
@@ -300,7 +279,7 @@ public class Drivetrain extends SubsystemBase {
      * @return
      */
     public double percentOutputToRadiansPerSecond(double percentOutput) {
-        return percentOutput * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+        return percentOutput * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
     }
 
     /**

@@ -19,6 +19,12 @@ public final class Constants {
         public static final double DRIVETRAIN_TRACKWIDTH_METERS = Units.inchesToMeters(22.375);
         public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(22.375);
 
+        // stopped module constants
+        public static final double FRONT_LEFT_RESTING_ANGLE = -45d;
+        public static final double FRONT_RIGHT_RESTING_ANGLE = 45d;
+        public static final double BACK_LEFT_RESTING_ANGLE = 45d;
+        public static final double BACK_RIGHT_RESTING_ANGLE = -45d;
+
         // our max voltage, velocity, and angular velocity
         public static final double MAX_VOLTAGE = 12.0;
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
