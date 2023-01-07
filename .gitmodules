@@ -1,3 +1,5 @@
 [submodule "src/main/java/frc/lightningUtil"]
 	path = src/main/java/frc/lightningUtil
 	url = ../lightningUtil
+[submodule ".\\src\\main\\java\\frc\\lightningUtil\\"]
+	branch = 2-import-into-2023
