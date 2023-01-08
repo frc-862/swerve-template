@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.PIDConstants;
+
 import edu.wpi.first.math.util.Units;
 import frc.lightningUtil.swervelib.CanPort;
 import frc.lightningUtil.swervelib.SdsModuleConfigurations;
@@ -18,6 +20,10 @@ public final class Constants {
         // our drivetrain and track width
         public static final double DRIVETRAIN_TRACKWIDTH_METERS = Units.inchesToMeters(22.375);
         public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(22.375);
+
+        // drivetrain PIDConstants
+        public static final PIDConstants DRIVE_PID_CONSTANTS = new PIDConstants(Gains.kP, Gains.kI, Gains.kD);
+        public static final PIDConstants THETA_PID_CONSTANTS = new PIDConstants(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD);
 
         // stopped module constants
         public static final double FRONT_LEFT_RESTING_ANGLE = -45d;

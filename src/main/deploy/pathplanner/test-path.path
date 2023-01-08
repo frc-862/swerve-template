@@ -16,7 +16,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "Starting Pose Print"
+        ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
@@ -31,6 +33,34 @@
         "x": 2.737412751674377,
         "y": 3.0
       },
+      "nextControl": {
+        "x": 3.262587248325623,
+        "y": 3.0
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "Stop",
+          "Stop Print"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "after",
+        "waitTime": 5.0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.8462770648109768,
+        "y": 3.341098331797261
+      },
+      "prevControl": {
+        "x": 3.2694612070124176,
+        "y": 3.498075318229727
+      },
       "nextControl": null,
       "holonomicAngle": 0,
       "isReversal": false,
@@ -38,10 +68,12 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "End Print"
+        ],
         "executionBehavior": "sequential",
-        "waitBehavior": "after",
-        "waitTime": 5.0
+        "waitBehavior": "none",
+        "waitTime": 0
       }
     }
   ],
