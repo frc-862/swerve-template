@@ -64,7 +64,7 @@ public class Drivetrain extends SubsystemBase {
 
     // creating new pose, odometry, and cahssis speeds
     private Pose2d pose = new Pose2d();
-    private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+    private SwerveModulePosition[] modulePositions = {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
     private SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getYaw2d(), modulePositions, pose);
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
 

@@ -6,8 +6,8 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -31,7 +31,7 @@ public class RobotContainer {
 
     // creates our driver controller and deadzone
     private final XboxController driver = new XboxController(0);
-    private final double deadzone = 0.08;
+    private final double deadzone = 0.15;
 
     // creates our sendable chooser and Atuonomous dashboard tab
     private SendableChooser<Command> chooser = new SendableChooser<>();
@@ -96,7 +96,7 @@ public class RobotContainer {
      */
     public void makeTrajectory(String name, double maxVelocity, double maxAcceleration,
             HashMap<String, Command> eventMap) {
-        ArrayList<PathPlannerTrajectory> trajectory = PathPlanner.loadPathGroup(name, maxVelocity, maxVelocity);
+        List<PathPlannerTrajectory> trajectory = PathPlanner.loadPathGroup(name, maxVelocity, maxVelocity);
 
         eventMap.put("Set Inital Pose", new InstantCommand(() -> drivetrain
                 .setInitialPose(trajectory.get(0).getInitialPose(), trajectory.get(0).getInitialPose().getRotation())));
