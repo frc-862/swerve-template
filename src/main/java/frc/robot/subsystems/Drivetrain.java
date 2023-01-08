@@ -1,26 +1,6 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS;
-import static frc.robot.Constants.DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_DRIVE_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_MOTOR;
-import static frc.robot.Constants.DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET;
-import static frc.robot.Constants.DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND;
-import static frc.robot.Constants.DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
-import static frc.robot.Constants.DrivetrainConstants.MAX_VOLTAGE;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -166,10 +146,12 @@ public class Drivetrain extends SubsystemBase {
         this.chassisSpeeds = chassisSpeeds;
         if (states != null && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0
                 && chassisSpeeds.omegaRadiansPerSecond == 0) {
-            m_states[0].speedMetersPerSecond = 0;
-            m_states[1].speedMetersPerSecond = 0;
-            m_states[2].speedMetersPerSecond = 0;
-            m_states[3].speedMetersPerSecond = 0;
+            states[0] = new SwerveModuleState(0, new Rotation2d(DrivetrainConstants.FRONT_LEFT_RESTING_ANGLE));
+            states[1] = new SwerveModuleState(0, new Rotation2d(45));
+            states[2] = new SwerveModuleState(0, new Rotation2d(45));
+            states[3] = new SwerveModuleState(0, new Rotation2d(-45));
+
+            
         } else {
             states = kinematics.toSwerveModuleStates(chassisSpeeds);
         }
@@ -268,8 +250,8 @@ public class Drivetrain extends SubsystemBase {
      * @return the clamped voltage to apply to the drive motors
      */
     private double velocityToDriveVolts(double speedMetersPerSecond) {
-        double ff = m_feedForward.calculate(speedMetersPerSecond);
-        return MathUtil.clamp(ff, -MAX_VOLTAGE, MAX_VOLTAGE);
+        double ff = feedForward.calculate(speedMetersPerSecond);
+        return MathUtil.clamp(ff, -DrivetrainConstants.MAX_VOLTAGE, DrivetrainConstants.MAX_VOLTAGE);
     }
 
     /**
