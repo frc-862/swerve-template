@@ -25,7 +25,7 @@ public class RobotContainer extends LightningContainer {
     private static final JoystickFilter joystickFilter = new JoystickFilter(XboxControllerConstants.DEADBAND,
             XboxControllerConstants.MIN_POWER, XboxControllerConstants.MAX_POWER, Mode.CUBED);
 
-    private HashMap<String, Command> eventMap = new HashMap<>();
+    private static HashMap<String, Command> testPathMap = new HashMap<>();
 
     // configure the button bindings
     @Override
@@ -39,8 +39,13 @@ public class RobotContainer extends LightningContainer {
     @Override
     protected void configureAutonomousCommands() {
         // creates a trajectory using pathplanner
-        AutonomousCommandFactory.makeTrajectory("meter", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
-                DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND, drivetrain);
+        testPathMap.put("Starting Pose Print", new InstantCommand(() -> System.out.println(drivetrain.getPose())));
+        testPathMap.put("Stop", new InstantCommand(drivetrain::stop));
+        testPathMap.put("Stop Print", new InstantCommand(() -> System.out.println("Stopped at: " + drivetrain.getPose())));
+        testPathMap.put("End Print", new InstantCommand(() -> System.out.println("Ended Path at: " + drivetrain.getPose())));
+        AutonomousCommandFactory.makeTrajectory("test-path", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND, DrivetrainConstants.DRIVE_PID_CONSTANTS,
+                DrivetrainConstants.THETA_PID_CONSTANTS, testPathMap, drivetrain);
     }
 
     @Override
@@ -58,31 +63,17 @@ public class RobotContainer extends LightningContainer {
     }
 
     @Override
-    protected void configureSystemTests() {
-        // configure the button bindings
-    }
+    protected void configureSystemTests() {}
 
     @Override
-    protected void releaseDefaultCommands() {
-        // TODO Auto-generated method stub
-
-    }
+    protected void releaseDefaultCommands() {}
 
     @Override
-    protected void initializeDashboardCommands() {
-        // TODO Auto-generated method stub
-
-    }
+    protected void initializeDashboardCommands() {}
 
     @Override
-    protected void configureFaultCodes() {
-        // TODO Auto-generated method stub
-
-    }
+    protected void configureFaultCodes() {}
 
     @Override
-    protected void configureFaultMonitors() {
-        // TODO Auto-generated method stub
-
-    }
+    protected void configureFaultMonitors() {}
 }

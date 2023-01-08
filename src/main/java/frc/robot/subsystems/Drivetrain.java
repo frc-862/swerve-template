@@ -30,20 +30,25 @@ public class Drivetrain extends SubsystemBase {
     // creates our swerve kinematics using the robots track width and wheel base
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             // front left
-            new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
+                    DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // front right
-            new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
+                    -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // back left
-            new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
+            new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
+                    DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // back right
-            new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0));
+            new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
+                    -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
     // creating new pigeon2 gyro
     private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(1, "Canivore");
 
     // creating new pose, odometry, and cahssis speeds
     private Pose2d pose = new Pose2d();
-    private SwerveModulePosition[] modulePositions = {new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()};
+    private SwerveModulePosition[] modulePositions = { new SwerveModulePosition(), new SwerveModulePosition(),
+            new SwerveModulePosition(), new SwerveModulePosition() };
     private SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getYaw2d(), modulePositions, pose);
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
 
@@ -114,7 +119,7 @@ public class Drivetrain extends SubsystemBase {
                 DrivetrainConstants.BACK_RIGHT_MODULE_STEER_OFFSET);
 
         modulePositions[0] = frontLeftModule.getDrivePosition();
-        modulePositions[1] = frontRightModule.getDrivePosition(); 
+        modulePositions[1] = frontRightModule.getDrivePosition();
         modulePositions[2] = backLeftModule.getDrivePosition();
         modulePositions[3] = backRightModule.getDrivePosition();
 
@@ -134,6 +139,7 @@ public class Drivetrain extends SubsystemBase {
         updateModulePositions();
         updateOdomtery();
         field2d.setRobotPose(pose);
+        SmartDashboard.putString("pose", pose.getTranslation().toString());
     }
 
     /**
@@ -147,11 +153,10 @@ public class Drivetrain extends SubsystemBase {
         if (states != null && chassisSpeeds.vxMetersPerSecond == 0 && chassisSpeeds.vyMetersPerSecond == 0
                 && chassisSpeeds.omegaRadiansPerSecond == 0) {
             states[0] = new SwerveModuleState(0, new Rotation2d(DrivetrainConstants.FRONT_LEFT_RESTING_ANGLE));
-            states[1] = new SwerveModuleState(0, new Rotation2d(45));
-            states[2] = new SwerveModuleState(0, new Rotation2d(45));
-            states[3] = new SwerveModuleState(0, new Rotation2d(-45));
+            states[1] = new SwerveModuleState(0, new Rotation2d(DrivetrainConstants.FRONT_RIGHT_RESTING_ANGLE));
+            states[2] = new SwerveModuleState(0, new Rotation2d(DrivetrainConstants.BACK_LEFT_RESTING_ANGLE));
+            states[3] = new SwerveModuleState(0, new Rotation2d(DrivetrainConstants.BACK_RIGHT_RESTING_ANGLE));
 
-            
         } else {
             states = kinematics.toSwerveModuleStates(chassisSpeeds);
         }
@@ -171,7 +176,7 @@ public class Drivetrain extends SubsystemBase {
             SwerveModuleState backRightState = states[3];
 
             SwerveDriveKinematics.desaturateWheelSpeeds(states,
-            DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
+                    DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND);
 
             frontLeftModule.set(velocityToDriveVolts(frontLeftState.speedMetersPerSecond),
                     frontLeftState.angle.getRadians());
@@ -193,7 +198,7 @@ public class Drivetrain extends SubsystemBase {
 
     public void updateModulePositions() {
         modulePositions[0] = frontLeftModule.getDrivePosition();
-        modulePositions[1] = frontRightModule.getDrivePosition(); 
+        modulePositions[1] = frontRightModule.getDrivePosition();
         modulePositions[2] = backLeftModule.getDrivePosition();
         modulePositions[3] = backRightModule.getDrivePosition();
     }
@@ -222,6 +227,7 @@ public class Drivetrain extends SubsystemBase {
      */
     public void setStates(SwerveModuleState[] newStates) {
         states = newStates;
+        updateModulePositions();
         updateOdomtery();
         updateDriveStates(states);
 
@@ -318,7 +324,6 @@ public class Drivetrain extends SubsystemBase {
         odometry.resetPosition(getYaw2d(), modulePositions, pose);
     }
 
-
     /**
      * Gets the kinematics of the robot.
      * 
@@ -392,9 +397,9 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void stop() {
-        frontLeftModule.set(0, 45);
-        frontRightModule.set(0, 45);
-        backLeftModule.set(0, 45);
-        backRightModule.set(0, 45);
+        frontLeftModule.set(0, DrivetrainConstants.FRONT_LEFT_RESTING_ANGLE);
+        frontRightModule.set(0, DrivetrainConstants.FRONT_RIGHT_RESTING_ANGLE);
+        backLeftModule.set(0, DrivetrainConstants.BACK_LEFT_RESTING_ANGLE);
+        backRightModule.set(0, DrivetrainConstants.BACK_RIGHT_RESTING_ANGLE);
     }
 }
