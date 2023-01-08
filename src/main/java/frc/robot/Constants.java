@@ -6,11 +6,24 @@ import frc.lightningUtil.swervelib.SdsModuleConfigurations;
 
 public final class Constants {
 
+    public static final class XboxControllerConstants {
+        public static final double DEADBAND = 0.15;
+        public static final double MIN_POWER = 0d;
+        public static final double MAX_POWER = 1d;
+        
+    }
+
     public static final class DrivetrainConstants {
 
         // our drivetrain and track width
         public static final double DRIVETRAIN_TRACKWIDTH_METERS = Units.inchesToMeters(22.375);
         public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(22.375);
+
+        // stopped module constants
+        public static final double FRONT_LEFT_RESTING_ANGLE = -45d;
+        public static final double FRONT_RIGHT_RESTING_ANGLE = 45d;
+        public static final double BACK_LEFT_RESTING_ANGLE = 45d;
+        public static final double BACK_RIGHT_RESTING_ANGLE = -45d;
 
         // our max voltage, velocity, and angular velocity
         public static final double MAX_VOLTAGE = 12.0;
