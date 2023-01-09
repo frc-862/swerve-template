@@ -7,8 +7,10 @@ import frc.robot.subsystems.Drivetrain;
 import java.util.function.DoubleSupplier;
 
 public class SwerveDrive extends CommandBase {
+    // Decleare our drivetrain subsystems
     private final Drivetrain drivetrain;
 
+    // Declare our translation supplies/joystick values in most cases
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
@@ -35,7 +37,9 @@ public class SwerveDrive extends CommandBase {
 
     @Override
     public void execute() {
+        // Call drive method from drivetrain
         drivetrain.drive(
+            // Supply chassie speeds from the translation suppliers using feild relative control
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         drivetrain.percentOutputToMetersPerSecond(m_translationXSupplier.getAsDouble()),
                         drivetrain.percentOutputToMetersPerSecond(m_translationYSupplier.getAsDouble()),
@@ -45,6 +49,7 @@ public class SwerveDrive extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
-    }
+        // Stops drivetrain
+        drivetrain.stop();
+    }   
 }

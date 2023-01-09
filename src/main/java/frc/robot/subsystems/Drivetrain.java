@@ -27,54 +27,54 @@ import frc.robot.Constants.DrivetrainConstants.Gains;
 
 public class Drivetrain extends SubsystemBase {
 
-    // creates our swerve kinematics using the robots track width and wheel base
+    // Creates our swerve kinematics using the robots track width and wheel base
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-            // front left
+            // Front left
             new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
                     DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
-            // front right
+            // Front right
             new Translation2d(DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
                     -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
-            // back left
+            // Back left
             new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
                     DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
-            // back right
+            // Back right
             new Translation2d(-DrivetrainConstants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0,
                     -DrivetrainConstants.DRIVETRAIN_WHEELBASE_METERS / 2.0));
 
-    // creating new pigeon2 gyro
+    // Creating new pigeon2 gyro
     private final WPI_Pigeon2 pigeon = new WPI_Pigeon2(1, "Canivore");
 
-    // creating new pose, odometry, and cahssis speeds
+    // Creating new pose, odometry, and cahssis speeds
     private Pose2d pose = new Pose2d();
     private SwerveModulePosition[] modulePositions = { new SwerveModulePosition(), new SwerveModulePosition(),
             new SwerveModulePosition(), new SwerveModulePosition() };
     private SwerveDriveOdometry odometry = new SwerveDriveOdometry(kinematics, getYaw2d(), modulePositions, pose);
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
 
-    // creating our feed forward
+    // Creating our feed forward
     private final SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(Gains.kS, Gains.kV, Gains.kA);
 
-    // field2d for displaying on the dashboard
+    // Field2d for displaying on the dashboard
     private final Field2d field2d = new Field2d();
 
-    // creating our list of module states
+    // Creating our list of module states
     private SwerveModuleState[] states;
 
-    // creating our modules
+    // Creating our modules
     private final SwerveModule frontLeftModule;
     private final SwerveModule frontRightModule;
     private final SwerveModule backLeftModule;
     private final SwerveModule backRightModule;
 
     public Drivetrain() {
-        // creates our drivetrain shuffleboard tab for displaying module data
+        // Creates our drivetrain shuffleboard tab for displaying module data
         ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-        // put our field2d on the dashboard
+        // Put our field2d on the dashboard
         SmartDashboard.putData("Field", field2d);
 
-        // making front left module
+        // Making front left module
         frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -85,7 +85,7 @@ public class Drivetrain extends SubsystemBase {
                 DrivetrainConstants.FRONT_LEFT_MODULE_STEER_ENCODER,
                 DrivetrainConstants.FRONT_LEFT_MODULE_STEER_OFFSET);
 
-        // making front right module
+        // Making front right module
         frontRightModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -96,7 +96,7 @@ public class Drivetrain extends SubsystemBase {
                 DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_ENCODER,
                 DrivetrainConstants.FRONT_RIGHT_MODULE_STEER_OFFSET);
 
-        // making backleft module
+        // Making backleft module
         backLeftModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -107,7 +107,7 @@ public class Drivetrain extends SubsystemBase {
                 DrivetrainConstants.BACK_LEFT_MODULE_STEER_ENCODER,
                 DrivetrainConstants.BACK_LEFT_MODULE_STEER_OFFSET);
 
-        // making back right module
+        // Making back right module
         backRightModule = Mk3SwerveModuleHelper.createFalcon500(
                 tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
@@ -123,10 +123,10 @@ public class Drivetrain extends SubsystemBase {
         modulePositions[2] = backLeftModule.getDrivePosition();
         modulePositions[3] = backRightModule.getDrivePosition();
 
-        // zero our gyro
+        // Zero our gyro
         zeroYaw();
 
-        // start logging data
+        // Start logging data
         initLogging();
 
         CommandScheduler.getInstance().registerSubsystem(this);
@@ -135,7 +135,7 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // update our odometry and field2d
+        // Update our module positions, odometery, and field2d
         updateModulePositions();
         updateOdomtery();
         field2d.setRobotPose(pose);
