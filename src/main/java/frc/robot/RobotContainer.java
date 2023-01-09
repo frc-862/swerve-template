@@ -17,32 +17,34 @@ import frc.robot.commands.SwerveDrive;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer extends LightningContainer {
-    // creates our drivetrain subsystem
+    // Creates our drivetrain subsystem
     private static final Drivetrain drivetrain = new Drivetrain();
 
-    // creates our driver controller and deadzone
+    // Creates our driver controller and deadzone
     private static final XboxController driver = new XboxController(0);
     private static final JoystickFilter joystickFilter = new JoystickFilter(XboxControllerConstants.DEADBAND,
             XboxControllerConstants.MIN_POWER, XboxControllerConstants.MAX_POWER, Mode.CUBED);
 
     private static HashMap<String, Command> testPathMap = new HashMap<>();
 
-    // configure the button bindings
+    // Configure the button bindings
     @Override
     protected void configureButtonBindings() {
-        // back button to reset feild centeric driving to current heading of the robot
+        // Back button to reset feild centeric driving to current heading of the robot
         new Trigger(driver::getBackButton)
                 .onTrue(new InstantCommand(drivetrain::zeroYaw, drivetrain));
     }
 
-    // creates the autonomous commands
+    // Creates the autonomous commands
     @Override
     protected void configureAutonomousCommands() {
-        // creates a trajectory using pathplanner
+        // Creates a trajectory using pathplanner
         testPathMap.put("Starting Pose Print", new InstantCommand(() -> System.out.println(drivetrain.getPose())));
         testPathMap.put("Stop", new InstantCommand(drivetrain::stop));
-        testPathMap.put("Stop Print", new InstantCommand(() -> System.out.println("Stopped at: " + drivetrain.getPose())));
-        testPathMap.put("End Print", new InstantCommand(() -> System.out.println("Ended Path at: " + drivetrain.getPose())));
+        testPathMap.put("Stop Print",
+                new InstantCommand(() -> System.out.println("Stopped at: " + drivetrain.getPose())));
+        testPathMap.put("End Print",
+                new InstantCommand(() -> System.out.println("Ended Path at: " + drivetrain.getPose())));
         AutonomousCommandFactory.makeTrajectory("test-path", DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
                 DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND, DrivetrainConstants.DRIVE_PID_CONSTANTS,
                 DrivetrainConstants.THETA_PID_CONSTANTS, testPathMap, drivetrain);
@@ -50,11 +52,11 @@ public class RobotContainer extends LightningContainer {
 
     @Override
     protected void configureDefaultCommands() {
-        // set up the default command for the drivetrain.
-        // the controls are for field-oriented driving:
-        // left stick Y axis -> forward and backwards movement
-        // left stick X axis -> left and right movement
-        // right stick X axis -> rotation
+        // Set up the default command for the drivetrain.
+        // The controls are for field-oriented driving:
+        // Left stick Y axis -> forward and backwards movement
+        // Left stick X axis -> left and right movement
+        // Right stick X axis -> rotation
         drivetrain.setDefaultCommand(
                 new SwerveDrive(drivetrain, () -> -joystickFilter.filter(driver.getLeftX()),
                         () -> joystickFilter.filter(driver.getLeftY()),
@@ -63,17 +65,22 @@ public class RobotContainer extends LightningContainer {
     }
 
     @Override
-    protected void configureSystemTests() {}
+    protected void configureSystemTests() {
+    }
 
     @Override
-    protected void releaseDefaultCommands() {}
+    protected void releaseDefaultCommands() {
+    }
 
     @Override
-    protected void initializeDashboardCommands() {}
+    protected void initializeDashboardCommands() {
+    }
 
     @Override
-    protected void configureFaultCodes() {}
+    protected void configureFaultCodes() {
+    }
 
     @Override
-    protected void configureFaultMonitors() {}
+    protected void configureFaultMonitors() {
+    }
 }
