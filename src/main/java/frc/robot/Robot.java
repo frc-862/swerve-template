@@ -1,6 +1,6 @@
 package frc.robot;
 
-import frc.lightningUtil.LightningRobot;
+import frc.thunder.LightningRobot;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -16,5 +16,5 @@ public class Robot extends LightningRobot {
     public Robot() {
         super(new RobotContainer());
     }
- 
+
 }

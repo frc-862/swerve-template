@@ -3,8 +3,8 @@ package frc.robot;
 import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.util.Units;
-import frc.lightningUtil.swervelib.CanPort;
-import frc.lightningUtil.swervelib.SdsModuleConfigurations;
+import frc.thunder.swervelib.CanPort;
+import frc.thunder.swervelib.SdsModuleConfigurations;
 
 public final class Constants {
 
@@ -13,7 +13,7 @@ public final class Constants {
         public static final double DEADBAND = 0.15;
         public static final double MIN_POWER = 0d;
         public static final double MAX_POWER = 1d;
-        
+
     }
 
     public static final class DrivetrainConstants {
@@ -24,7 +24,8 @@ public final class Constants {
 
         // Drivetrain PIDConstants
         public static final PIDConstants DRIVE_PID_CONSTANTS = new PIDConstants(Gains.kP, Gains.kI, Gains.kD);
-        public static final PIDConstants THETA_PID_CONSTANTS = new PIDConstants(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD);
+        public static final PIDConstants THETA_PID_CONSTANTS = new PIDConstants(ThetaGains.kP, ThetaGains.kI,
+                ThetaGains.kD);
 
         // Stopped module constants
         public static final double FRONT_LEFT_RESTING_ANGLE = -45d;

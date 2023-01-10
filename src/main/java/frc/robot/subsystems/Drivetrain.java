@@ -19,11 +19,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lightningUtil.logging.DataLogger;
-import frc.lightningUtil.swervelib.Mk3SwerveModuleHelper;
-import frc.lightningUtil.swervelib.SwerveModule;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.DrivetrainConstants.Gains;
+import frc.thunder.logging.DataLogger;
+import frc.thunder.swervelib.Mk3SwerveModuleHelper;
+import frc.thunder.swervelib.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
 
