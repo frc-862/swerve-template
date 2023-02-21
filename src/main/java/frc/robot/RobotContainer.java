@@ -76,9 +76,9 @@ public class RobotContainer extends LightningContainer {
                 // Left stick X axis -> left and right movement
                 // Right stick X axis -> rotation
                 drivetrain.setDefaultCommand(new SwerveDrive(drivetrain,
-                                () -> -joystickFilter.filter(driver.getLeftX()),
-                                () -> joystickFilter.filter(driver.getLeftY()),
-                                () -> -joystickFilter.filter(driver.getRightX())));
+                                () -> (-joystickFilter.filter(driver.getLeftX()) * drivetrain.getDemoSpeedLim()),
+                                () -> (joystickFilter.filter(driver.getLeftY()) * drivetrain.getDemoSpeedLim()),
+                                () -> (-joystickFilter.filter(driver.getRightX()) * drivetrain.getDemoSpeedLim())));
 
         }
 
