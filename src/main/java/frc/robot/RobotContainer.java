@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import java.util.HashMap;
 
-import com.pathplanner.lib.PathConstraints;
+// import com.pathplanner.lib.PathConstraints;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -29,10 +29,10 @@ public class RobotContainer extends LightningContainer {
 
     private static HashMap<String, Command> testPathMap = new HashMap<>();
 
-    private static AutonomousCommandFactory autoFactory = new AutonomousCommandFactory(drivetrain::getPose,
-            drivetrain::resetOdometry, drivetrain.getDriveKinematics(),
-            DrivetrainConstants.DRIVE_PID_CONSTANTS, DrivetrainConstants.DRIVE_PID_CONSTANTS,
-            drivetrain::setStates, drivetrain);
+//     private static AutonomousCommandFactory autoFactory = new AutonomousCommandFactory(drivetrain::getPose,
+//             drivetrain::resetOdometry, drivetrain.getDriveKinematics(),
+//             DrivetrainConstants.DRIVE_PID_CONSTANTS, DrivetrainConstants.DRIVE_PID_CONSTANTS,
+//             drivetrain::setStates, drivetrain);
 
     // Configure the button bindings
     @Override
@@ -46,15 +46,15 @@ public class RobotContainer extends LightningContainer {
     @Override
     protected void configureAutonomousCommands() {
         // Creates a trajectory using pathplanner
-        testPathMap.put("Starting Pose Print",
-                new InstantCommand(() -> System.out.println(drivetrain.getPose())));
-        testPathMap.put("Stop", new InstantCommand(drivetrain::stop));
-        testPathMap.put("Stop Print",
-                new InstantCommand(() -> System.out.println("Stopped at: " + drivetrain.getPose())));
-        testPathMap.put("End Print",
-                new InstantCommand(() -> System.out.println("Ended Path at: " + drivetrain.getPose())));
-        autoFactory.makeTrajectory("test-path", testPathMap, new PathConstraints(3, 3),
-                new PathConstraints(3, 3));
+        // testPathMap.put("Starting Pose Print",
+        //         new InstantCommand(() -> System.out.println(drivetrain.getPose())));
+        // testPathMap.put("Stop", new InstantCommand(drivetrain::stop));
+        // testPathMap.put("Stop Print",
+        //         new InstantCommand(() -> System.out.println("Stopped at: " + drivetrain.getPose())));
+        // testPathMap.put("End Print",
+        //         new InstantCommand(() -> System.out.println("Ended Path at: " + drivetrain.getPose())));
+        // autoFactory.makeTrajectory("test-path", testPathMap, new PathConstraints(3, 3),
+        //         new PathConstraints(3, 3));
     }
 
     @Override
