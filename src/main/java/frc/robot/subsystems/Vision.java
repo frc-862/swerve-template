@@ -283,6 +283,8 @@ public class Vision extends SubsystemBase {
         }
     }
 
+    
+
     /**
      * Function to tell us whether or not we're on target (centered on vision tape)
      * 
