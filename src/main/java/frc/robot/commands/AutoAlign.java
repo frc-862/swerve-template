@@ -28,7 +28,7 @@ public class AutoAlign extends CommandBase {
     @Override
     public void execute() {
         double distance =  Math.sin(vision.autoAlign());
-        distance *= 0.25; // TODO: get formula
+        distance = vision.calculateRetroReflectiveDistance();
 
         drivetrain.setChassisSpeeds(new ChassisSpeeds(0d, distance, 0d));
     }

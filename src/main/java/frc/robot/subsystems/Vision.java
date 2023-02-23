@@ -312,4 +312,16 @@ public class Vision extends SubsystemBase {
         }
     }
 
+    public double calculateRetroReflectiveDistance(){
+        //top tape
+        if(curPipeline == 2){
+            return(5.969/Math.tanh(verticalOffset));
+        }
+        //bottom tape
+        else if(curPipeline == 3){
+            return(13.781/Math.tanh(verticalOffset));
+        }
+        return 0;
+    }
+
 }
