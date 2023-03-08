@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.numbers.N1;
@@ -20,6 +22,17 @@ public final class Constants {
         public static final double MAX_POWER = 1d;
 
     }
+
+    public static final class LedConstants{
+        public static final double BRIGHTNESS = .25;
+        public static final LEDStripType STRIP_TYPE = LEDStripType.RGB;
+        public static final int LED_LENGTH = 500;
+
+        public static enum LEDStates {
+            wantsCone, wantsCube, hasCone, hasCube, override, noPiece
+        }
+    }
+
 
     public static final class DrivetrainConstants {
 

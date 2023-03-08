@@ -15,6 +15,7 @@ import frc.robot.Constants.XboxControllerConstants;
 import frc.robot.commands.AutoAlign;
 import frc.robot.commands.SwerveDrive;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.thunder.LightningContainer;
 import frc.thunder.auto.AutonomousCommandFactory;
@@ -23,11 +24,13 @@ import frc.thunder.filter.JoystickFilter.Mode;
 
 public class RobotContainer extends LightningContainer {
         // Creates our drivetrain subsystem
-        private static final Drivetrain drivetrain = new Drivetrain();
+        // private static final Drivetrain drivetrain = new Drivetrain();
 
         // Creates vision
         private static final Vision vision = new Vision();
 
+        private static final LEDs leds = new LEDs();
+        
         // Creates our driver controller and deadzone
         private static final XboxController driver = new XboxController(0);
         private static final JoystickFilter joystickFilter = new JoystickFilter(
@@ -46,9 +49,9 @@ public class RobotContainer extends LightningContainer {
         @Override
         protected void configureButtonBindings() {
                 // Back button to reset feild centeric driving to current heading of the robot
-                new Trigger(driver::getBackButton)
-                                .onTrue(new InstantCommand(drivetrain::zeroYaw, drivetrain));
-                new Trigger(driver::getAButton).whileTrue(new AutoAlign(drivetrain, vision));
+                // new Trigger(driver::getBackButton)
+                //                 .onTrue(new InstantCommand(drivetrain::zeroYaw, drivetrain));
+                // new Trigger(driver::getAButton).whileTrue(new AutoAlign(drivetrain, vision));
         }
 
         // Creates the autonomous commands
@@ -75,10 +78,10 @@ public class RobotContainer extends LightningContainer {
                 // Left stick Y axis -> forward and backwards movement
                 // Left stick X axis -> left and right movement
                 // Right stick X axis -> rotation
-                drivetrain.setDefaultCommand(new SwerveDrive(drivetrain,
-                                () -> -joystickFilter.filter(driver.getLeftX()),
-                                () -> joystickFilter.filter(driver.getLeftY()),
-                                () -> -joystickFilter.filter(driver.getRightX())));
+                // drivetrain.setDefaultCommand(new SwerveDrive(drivetrain,
+                //                 () -> -joystickFilter.filter(driver.getLeftX()),
+                //                 () -> joystickFilter.filter(driver.getLeftY()),
+                //                 () -> -joystickFilter.filter(driver.getRightX())));
 
         }
 
