@@ -7,7 +7,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
-// import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.util.Units;
 import frc.thunder.swervelib.SdsModuleConfigurations;
@@ -22,7 +22,7 @@ public final class Constants {
 
     }
 
-    public static final class LedConstants{
+    public static final class LedConstants {
         public static final double BRIGHTNESS = .25;
         public static final LEDStripType STRIP_TYPE = LEDStripType.RGB;
         public static final int LED_LENGTH = 500;
@@ -40,11 +40,10 @@ public final class Constants {
         public static final double DRIVETRAIN_WHEELBASE_METERS = Units.inchesToMeters(22.375);
 
         // Drivetrain PIDConstants
-        // public static final PIDConstants DRIVE_PID_CONSTANTS = new PIDConstants(Gains.kP,
-        // Gains.kI, Gains.kD);
-        // public static final PIDConstants THETA_PID_CONSTANTS = new PIDConstants(ThetaGains.kP,
-        // ThetaGains.kI,
-        // ThetaGains.kD);
+        public static final PIDConstants DRIVE_PID_CONSTANTS =
+                new PIDConstants(Gains.kP, Gains.kI, Gains.kD);
+        public static final PIDConstants THETA_PID_CONSTANTS =
+                new PIDConstants(ThetaGains.kP, ThetaGains.kI, ThetaGains.kD);
 
         // Stopped module constants
         public static final double FRONT_LEFT_RESTING_ANGLE = -45d;

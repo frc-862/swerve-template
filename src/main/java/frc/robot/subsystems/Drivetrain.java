@@ -334,6 +334,13 @@ public class Drivetrain extends SubsystemBase {
         odometry.resetPosition(getYaw2d(), modulePositions, pose);
     }
 
+    public void resyncEncoder() {
+        frontLeftModule.setEncoderAngle();
+        frontRightModule.setEncoderAngle();
+        backLeftModule.setEncoderAngle();
+        backRightModule.setEncoderAngle();
+    }
+
     /**
      * Gets the kinematics of the robot.
      * 
