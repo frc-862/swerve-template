@@ -10,7 +10,6 @@ import edu.wpi.first.math.numbers.N3;
 // import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.util.Units;
-import frc.thunder.swervelib.CanPort;
 import frc.thunder.swervelib.SdsModuleConfigurations;
 
 public final class Constants {
@@ -66,27 +65,27 @@ public final class Constants {
         public static final String PIGEON_CANBUS = "Canivore";
 
         // Front left moudle configurations
-        public static final CanPort FRONT_LEFT_MODULE_DRIVE_MOTOR = new CanPort(8, "Canivore");
-        public static final CanPort FRONT_LEFT_MODULE_STEER_MOTOR = new CanPort(7, "Canivore");
-        public static final CanPort FRONT_LEFT_MODULE_STEER_ENCODER = new CanPort(16, "Canivore");
+        public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 8;
+        public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 7;
+        public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 16;
         public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(267.79449); // 267.97);
 
         // Front right moudle configurations
-        public static final CanPort FRONT_RIGHT_MODULE_DRIVE_MOTOR = new CanPort(11, "Canivore");
-        public static final CanPort FRONT_RIGHT_MODULE_STEER_MOTOR = new CanPort(12, "Canivore");
-        public static final CanPort FRONT_RIGHT_MODULE_STEER_ENCODER = new CanPort(17, "Canivore");
+        public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 11;
+        public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 12;
+        public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 17;
         public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(195.46948); // 191.93);
 
         // Back left moudle configurations
-        public static final CanPort BACK_LEFT_MODULE_DRIVE_MOTOR = new CanPort(10, "Canivore");
-        public static final CanPort BACK_LEFT_MODULE_STEER_MOTOR = new CanPort(9, "Canivore");
-        public static final CanPort BACK_LEFT_MODULE_STEER_ENCODER = new CanPort(15, "Canivore");
+        public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 10;
+        public static final int BACK_LEFT_MODULE_STEER_MOTOR = 9;
+        public static final int BACK_LEFT_MODULE_STEER_ENCODER = 15;
         public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(254.34998);// 254.11);
 
         // Back right moudle configurations
-        public static final CanPort BACK_RIGHT_MODULE_DRIVE_MOTOR = new CanPort(13, "Canivore");
-        public static final CanPort BACK_RIGHT_MODULE_STEER_MOTOR = new CanPort(14, "Canivore");
-        public static final CanPort BACK_RIGHT_MODULE_STEER_ENCODER = new CanPort(18, "Canivore");
+        public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 13;
+        public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 14;
+        public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 18;
         public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(59.76288); // 59.08);
 
         // Gains vaules for PIDControllers

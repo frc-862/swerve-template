@@ -99,4 +99,10 @@ public class RobotContainer extends LightningContainer {
 
         @Override
         protected void configureFaultMonitors() {}
+
+        @Override
+        protected AutonomousCommandFactory getCommandFactory() {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'getCommandFactory'");
+        }
 }
